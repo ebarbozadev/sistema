@@ -1,0 +1,71 @@
+#bannerPrincipal {
+    width: 100%;
+    height: 470px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+#bannerPrincipal::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: inherit; /* Aplica a imagem de fundo original */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.4) saturate(1.2) hue-rotate(25deg); /* Filtro aplicado à imagem */
+    background-color: rgb(89, 255, 89); /* Camada verde sobreposta */
+    z-index: 1; /* Coloca o filtro abaixo do conteúdo */
+}
+
+.bannerPrincipal {
+    position: relative;
+    z-index: 2; /* Coloca o conteúdo acima do filtro */
+
+    .bp_mouse {
+        position: absolute;
+        z-index: 2;
+        width: 37px;
+        height: 55px;
+        top: 300px;
+        right: 49%;
+    }
+
+    .bp_descricoes {
+        z-index: 2;
+        height: 250px;
+        position: absolute;
+        top: 100px;
+        left: 16%;
+
+        textarea {
+            font-size: 60px;
+
+            background-color: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+
+            width: 600px;
+            color: white;
+        }
+
+        p {
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        a {
+            padding: 15px 50px;
+            color: white;
+            font-size: 21px;
+            border: 1px solid white;
+            background-color: var(--corPrincipal);
+        }
+    }
+}

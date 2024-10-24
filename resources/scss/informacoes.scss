@@ -1,0 +1,32 @@
+#informacoes {
+    .container {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .card {
+        color: var(--corBranco);
+
+        flex: 1 1 20%;
+        padding: 30px;
+        min-width: 480px;
+        height: 215px;
+
+        h4 {
+            margin-bottom: 23px;
+            font-weight: 400;
+        }
+    }
+
+    .card:nth-child(4) {
+        h4 {
+            color: var(--corQuaternaria);
+        }
+
+        p {
+            color: var(--corPreto);
+        }
+    }
+}

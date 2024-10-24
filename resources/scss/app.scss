@@ -1,0 +1,83 @@
+// Estilização global
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+// Padrão de cores
+
+:root {
+    --corPrincipal: #325934;
+    --corSecundaria: #7c4234;
+    --corTerciaria: #b09134;
+    --corQuaternaria: #0b3650;
+    --corBranco: #ffffff;
+    --corPreto: #222222;
+}
+
+// Setando padrão em algumas tags
+
+h1,
+h2,
+h4,
+textarea {
+    font-family: "Roboto", sans-serif;
+}
+
+p,
+a {
+    font-family: "Montserrat", sans-serif;
+}
+
+h1,
+h3,
+p {
+    color: var(--corBranco);
+}
+
+h1 {
+    font-size: 60px;
+}
+
+h2 {
+    font-size: 55px;
+    color: var(--corQuaternaria);
+}
+
+h3 {
+    font-size: 60px;
+}
+
+h4 {
+    font-size: 30px;
+}
+
+p {
+    font-size: 16px;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    color: var(--corPrincipal);
+    text-decoration: none;
+}
+
+.container {
+    width: 70%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+// Importações
+
+@import url("./header.scss");
+@import url("./bannerPrincipal.scss");
+@import url("./informacoes.scss");
+@import url("./videoPrincipal.scss");
+@import url("./videoSecundario.scss");
+@import url("./categorias.scss");
