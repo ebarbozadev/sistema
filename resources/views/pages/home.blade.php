@@ -6,4 +6,5 @@
     @include('layouts.videoPrincipal')
     @include('layouts.categorias')
     @include('layouts.videoSecundario')
+    @include('layouts.planos')
 @endsection

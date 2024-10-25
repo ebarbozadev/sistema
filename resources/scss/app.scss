@@ -15,13 +15,16 @@
     --corQuaternaria: #0b3650;
     --corBranco: #ffffff;
     --corPreto: #222222;
+    --corCinza: #666666;
 }
 
 // Setando padrão em algumas tags
 
 h1,
 h2,
+h3,
 h4,
+span,
 textarea {
     font-family: "Roboto", sans-serif;
 }
@@ -81,3 +84,4 @@ a {
 @import url("./videoPrincipal.scss");
 @import url("./videoSecundario.scss");
 @import url("./categorias.scss");
+@import url("./planos.scss");

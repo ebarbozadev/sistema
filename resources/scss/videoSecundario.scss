@@ -1,49 +1,90 @@
-#meuVideo {
-    width: 100%;
-    height: auto;
-    position: relative;
-    cursor: pointer; /* Indica que o vídeo pode ser clicado */
-}
-
-.videoWrapper {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
-}
-
-.play-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    cursor: pointer;
+#videoSecundario {
     display: flex;
-    justify-content: center;
     align-items: center;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
+    justify-content: center;
+    gap: 100px;
 
-.play-overlay::after {
-    content: "▶";
-    font-size: 60px;
-    color: white;
-}
+    margin: 16px 0;
 
-/* Esconde o overlay quando o vídeo está em reprodução */
-#meuVideo:hover + .play-overlay {
-    opacity: 0;
-}
+    background: linear-gradient(to right, #2e5339 55%, #ffffff 45%);
+    height: 850px;
 
-video {
-    display: block;
-}
+    .videoSecundario_description {
+        width: 560px;
 
-/* Remove os controles padrão de todos os navegadores */
-video::-webkit-media-controls,
-video::-moz-media-controls {
-    display: none !important; /* Remove os controles padrão */
+        h4 {
+            font-size: 24px;
+            color: var(--corPreto);
+            font-weight: 400;
+
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-weight: 400;
+            font-size: 21px;
+            color: var(--corPreto);
+            margin: 50px 0;
+        }
+
+        a {
+            background-color: var(--corSecundaria);
+            color: var(--corBranco);
+
+            padding: 20px 40px;
+        }
+    }
+
+    #meuVideo {
+        height: 556px;
+        width: 990px;
+        position: relative;
+        cursor: pointer; /* Indica que o vídeo pode ser clicado */
+    }
+
+    .videoWrapper {
+        position: relative;
+        height: 556px;
+        width: 990px;
+        margin: 0;
+    }
+
+    .play-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 556px;
+        width: 990px;
+        background: rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .play-overlay::after {
+        content: "";
+        background-image: url("../../public/images/btnPlay.svg");
+        width: 162px;
+        height: 150px;
+        font-size: 60px;
+        color: white;
+    }
+
+    /* Esconde o overlay quando o vídeo está em reprodução */
+    #meuVideo:hover + .play-overlay {
+        opacity: 0;
+    }
+
+    video {
+        display: block;
+    }
+
+    /* Remove os controles padrão de todos os navegadores */
+    video::-webkit-media-controls,
+    video::-moz-media-controls {
+        display: none !important; /* Remove os controles padrão */
+    }
 }
