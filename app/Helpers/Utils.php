@@ -22,6 +22,13 @@ class Utils
         return $tipos[$codigo] ?? "Tipo desconhecido";
     }
 
+    public static function fixUrlBar($path)
+    {
+        // Converte todas as barras invertidas (\) para barras normais (/)
+        return str_replace('\\', '/', $path);
+    }
+
+
     // Função nova para gerar o link embed
     public static function getYouTubeEmbedUrl($youtubeUrl)
     {

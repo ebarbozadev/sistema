@@ -7,4 +7,5 @@
     @include('layouts.categorias')
     @include('layouts.videoSecundario')
     @include('layouts.planos')
+    @include('layouts.parceiros')
 @endsection
