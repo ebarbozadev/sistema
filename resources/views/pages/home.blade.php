@@ -8,4 +8,5 @@
     @include('layouts.videoSecundario')
     @include('layouts.planos')
     @include('layouts.parceiros')
+    @include('layouts.rodape')
 @endsection
