@@ -70,6 +70,45 @@ a {
     text-decoration: none;
 }
 
+#divisao {
+    display: flex;
+    justify-content: space-between;
+
+    #principal {
+        width: 70%;
+
+        .container {
+            width: 100%;
+        }
+    }
+
+    #cursos {
+        width: 300px;
+        padding-top: 10px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        img {
+            width: 250px;
+        }
+    }
+
+    #publicidades {
+        width: 300px;
+        padding-top: 10px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        img {
+            width: 250px;
+        }
+    }
+}
+
 .container {
     width: 70%;
     height: 100%;
@@ -87,3 +126,4 @@ a {
 @import url("./planos.scss");
 @import url("./parceiros.scss");
 @import url("./rodape.scss");
+@import url("./dinamica.scss");

@@ -1,7 +1,7 @@
 <header>
     <div class="container">
         <a href="/">
-            <img src="{{ asset('images/logo.svg') }}" alt="Logo TV Fazenda">
+            <img src="{{ asset('') . 'storage/' . $latestHome->logo }}" alt="Logo TV Fazenda">
         </a>
 
         <ul>

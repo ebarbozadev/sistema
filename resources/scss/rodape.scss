@@ -1,0 +1,67 @@
+#rodape {
+    .container {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        img {
+            width: 320px;
+            height: 85px;
+        }
+
+        h4 {
+            line-height: 100px;
+            font-weight: 900;
+        }
+
+        .rodape-institucional {
+            div {
+                display: flex;
+                flex-direction: column;
+
+                a {
+                    color: var(--corPreto);
+                }
+            }
+        }
+
+        .rodape-categorias {
+            div {
+                display: flex;
+                flex-direction: column;
+
+                a {
+                    color: var(--corPreto);
+                }
+            }
+        }
+
+        .rodape-contatos {
+            div {
+                p {
+                    color: var(--corPreto);
+                }
+            }
+        }
+    }
+
+    .rodape-copyright {
+        height: 50px;
+        background-color: var(--corSecundaria);
+        text-align: center;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        div {
+            height: 32px;
+
+            p {
+                color: var(--corBranco);
+                font-size: 12px;
+            }
+        }
+    }
+}
