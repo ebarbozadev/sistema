@@ -1,5 +1,0 @@
-0000000000000000000000000000000000000000 f14feab6819466d45cc65a469640c5636ea11127 ebarbozadev <emanuel.barboza@digitalone.com.br> 1729803009 -0300	commit (initial): Realizando envio ddo Header; Banner Principal; Informações; Video Principal; Categorias; Video Secundário
-f14feab6819466d45cc65a469640c5636ea11127 f14feab6819466d45cc65a469640c5636ea11127 ebarbozadev <emanuel.barboza@digitalone.com.br> 1729803095 -0300	checkout: moving from master to videoSecundario
-f14feab6819466d45cc65a469640c5636ea11127 55c689dd1c0fef8e04cb64dab7e982610544808b ebarbozadev <emanuel.barboza@digitalone.com.br> 1729865252 -0300	commit: Adicionando video secundário e anunciar também
-55c689dd1c0fef8e04cb64dab7e982610544808b f14feab6819466d45cc65a469640c5636ea11127 ebarbozadev <emanuel.barboza@digitalone.com.br> 1729865281 -0300	checkout: moving from videoSecundario to master
-f14feab6819466d45cc65a469640c5636ea11127 55c689dd1c0fef8e04cb64dab7e982610544808b ebarbozadev <emanuel.barboza@digitalone.com.br> 1729865288 -0300	merge videoSecundario: Fast-forward

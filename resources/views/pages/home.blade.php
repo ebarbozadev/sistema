@@ -3,6 +3,7 @@
 @section('content')
     @include('layouts.bannerPrincipal')
     @include('layouts.informacoes')
+
     <div id="divisao">
         <div id="cursos">
             @include('layouts.cursos')

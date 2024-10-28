@@ -20,6 +20,10 @@
 
 // Setando padrão em algumas tags
 
+body {
+    width: 100% !important;
+}
+
 h1,
 h2,
 h3,
@@ -70,45 +74,6 @@ a {
     text-decoration: none;
 }
 
-#divisao {
-    display: flex;
-    justify-content: space-between;
-
-    #principal {
-        width: 70%;
-
-        .container {
-            width: 100%;
-        }
-    }
-
-    #cursos {
-        width: 300px;
-        padding-top: 10px;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        img {
-            width: 250px;
-        }
-    }
-
-    #publicidades {
-        width: 300px;
-        padding-top: 10px;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        img {
-            width: 250px;
-        }
-    }
-}
-
 .container {
     width: 70%;
     height: 100%;
@@ -123,7 +88,399 @@ a {
 @import url("./videoPrincipal.scss");
 @import url("./videoSecundario.scss");
 @import url("./categorias.scss");
+@import url("./divisao.scss");
 @import url("./planos.scss");
 @import url("./parceiros.scss");
 @import url("./rodape.scss");
 @import url("./dinamica.scss");
+
+// Responsivo
+@media (max-width: 1466px) {
+    header {
+        .container {
+            width: 100%;
+            flex-direction: row;
+            padding: 0 20px;
+
+            img {
+                width: 250px;
+            }
+        }
+    }
+
+    #videoSecundario {
+        background: linear-gradient(to right, #ffffff 65%, #2e5339 35%);
+    }
+}
+
+@media (min-width: 1440px) {
+    #videoSecundario {
+        flex-direction: row !important;
+        background: linear-gradient(
+            to right,
+            #2e5339 55%,
+            #ffffff 45%
+        ) !important;
+        height: 850px !important;
+        padding-left: 40px;
+    }
+
+    #planos {
+        .container {
+            .container-topo {
+                justify-content: space-between;
+
+                .planos-descricao {
+                    width: 50%;
+                }
+
+                .planos-cards {
+                    width: auto !important;
+
+                    .card {
+                        width: 260px !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: 1024px) {
+    #informacoes {
+        .container {
+            width: 100% !important;
+        }
+    }
+
+    #videoSecundario {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #planos {
+        margin-top: 80px !important;
+        .container-topo {
+            gap: 0;
+            justify-content: space-between;
+
+            .planos-cards {
+                width: 100% !important;
+
+                .card {
+                    width: 50%;
+
+                    h3 {
+                        font-size: 45px;
+                    }
+                }
+            }
+        }
+    }
+
+    #divisao {
+        #cursos {
+            width: 180px !important;
+            display: flex;
+
+            img {
+                width: 160px !important;
+            }
+        }
+
+        #publicidades {
+            display: flex;
+            width: 180px !important;
+
+            img {
+                width: 160px !important;
+            }
+        }
+    }
+
+    #videoSecundario {
+        .videoSecundario_description {
+            padding-right: 40px;
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .container {
+        width: 95% !important;
+    }
+
+    header {
+        .container {
+            width: 100% !important;
+            padding: 0;
+
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+
+            ul {
+                height: auto;
+                width: 100%;
+                padding: 0 10px;
+                line-height: normal;
+
+                li {
+                    a {
+                        padding: 0 20px !important;
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
+    }
+
+    #divisao {
+        #principal {
+            width: 100% !important;
+        }
+    }
+
+    header {
+        .container {
+            a {
+                img {
+                    width: 130px !important;
+                }
+            }
+        }
+    }
+
+    #videoSecundario {
+        margin-bottom: 40px;
+        flex-direction: column;
+
+        .videoSecundario_description {
+            padding-right: 40px;
+        }
+    }
+
+    #videoSecundario,
+    .videoWrapper,
+    #meuVideo,
+    #playOverlay {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    #planos {
+        .container {
+            .container-topo {
+                flex-direction: column;
+
+                .planos-cards {
+                    justify-content: center;
+                    .card {
+                        width: 290px;
+                    }
+                }
+            }
+        }
+    }
+
+    #rodape {
+        .container {
+            flex-wrap: wrap;
+            gap: 20px;
+
+            img {
+                margin-top: 15px;
+                width: 200px !important;
+                height: 50px !important;
+            }
+
+            div {
+                width: 250px;
+                flex: 1 1 20%;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        .container {
+            img {
+                width: 150px;
+            }
+
+            ul {
+                display: none;
+                z-index: 10;
+                position: absolute;
+                top: 125px;
+                left: 0;
+                width: 100%;
+                background-color: var(--corBranco);
+                box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+                flex-direction: column;
+
+                li {
+                    background-color: var(--corBranco);
+
+                    a {
+                        padding: 43px 100px 43px 20px;
+                    }
+                }
+
+                li:last-child a {
+                    margin-left: 20px;
+                }
+            }
+
+            #menu-icon {
+                display: block;
+            }
+        }
+    }
+
+    #bannerPrincipal {
+        .bannerPrincipal {
+            .bp_descricoes {
+                left: 13px;
+                width: 290px;
+
+                textarea {
+                    font-size: 35px;
+                    width: 290px;
+                }
+            }
+
+            .bp_mouse {
+                top: 390px;
+            }
+        }
+    }
+
+    #divisao #publicidades,
+    #divisao #cursos {
+        display: none !important;
+    }
+
+    #divisao {
+        #principal {
+            width: 100% !important;
+        }
+    }
+
+    #informacoes {
+        .container {
+            .card {
+                min-width: 100%;
+                height: auto;
+            }
+        }
+    }
+
+    #videoSecundario {
+        height: auto !important;
+        flex-direction: column;
+        background: var(--corBranco) !important;
+
+        .videoWrapper {
+            height: auto !important;
+
+            #meuVideo {
+                height: auto;
+            }
+
+            #playOverlay {
+                height: 100% !important;
+            }
+        }
+
+        .videoSecundario_description {
+            width: auto !important;
+            padding: 0 15px;
+
+            p,
+            h4 {
+                text-align: justify;
+            }
+        }
+    }
+
+    #videoSecundario,
+    .videoWrapper,
+    #meuVideo,
+    #playOverlay {
+        width: 100% !important;
+    }
+
+    #categorias {
+        .container {
+            .card {
+                min-width: 100%;
+                height: auto;
+            }
+        }
+    }
+
+    #planos {
+        margin-top: 100px;
+
+        .container {
+            .container-topo {
+                flex-direction: column;
+
+                .planos-cards {
+                    flex-direction: column;
+
+                    .card {
+                        width: auto;
+                    }
+                }
+            }
+
+            .container-baixo {
+                justify-content: center;
+
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    #parceiros {
+        overflow-y: auto;
+        height: 400px;
+
+        .container {
+            flex-direction: column;
+            align-items: center;
+            height: 600px;
+        }
+    }
+
+    footer {
+        .container {
+            width: 100%;
+
+            flex-direction: column;
+            align-items: center !important;
+
+            div {
+                width: 300px;
+            }
+
+            img {
+                width: 200px !important;
+                height: 60px !important;
+            }
+        }
+
+        .rodape-copyright {
+            div {
+                p {
+                    font-size: 9px !important;
+                }
+            }
+        }
+    }
+}

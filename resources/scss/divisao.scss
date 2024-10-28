@@ -1,0 +1,80 @@
+#divisao {
+    display: flex;
+    justify-content: space-evenly;
+
+    #principal {
+        width: 70%;
+
+        .container {
+            width: 100%;
+        }
+    }
+
+    #cursos {
+        width: 300px;
+        height: 100vh;
+        padding-top: 10px;
+
+        overflow: hidden;
+
+        display: none;
+        flex-direction: column;
+        align-items: center;
+
+        .swiper-cursos {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            box-sizing: border-box;
+        }
+
+        .swiper-slide img {
+            width: 250px !important;
+            height: 150px;
+            object-fit: contain;
+        }
+    }
+
+    #publicidades {
+        width: 300px;
+        height: 100vh;
+        padding-top: 10px;
+
+        overflow: hidden;
+
+        display: none;
+        flex-direction: column;
+        align-items: center;
+
+        .swiper-publicidades {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            box-sizing: border-box;
+        }
+
+        .swiper-slide img {
+            width: 80%;
+            height: 150px;
+            object-fit: contain;
+        }
+    }
+}
