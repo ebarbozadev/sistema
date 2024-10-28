@@ -2,7 +2,6 @@
     $cursosExibidos = 0;
 @endphp
 
-
 <section id="cursos">
     <div class="swiper-container swiper-cursos">
         <div class="swiper-wrapper">
@@ -34,7 +33,6 @@
             el: '.swiper-pagination',
             clickable: true,
         },
-        slidesPerView: 6,
-        spaceBetween: 10,
+        slidesPerView: 6
     });
 </script>

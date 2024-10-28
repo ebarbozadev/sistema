@@ -3,25 +3,38 @@
     border-bottom: 5px solid var(--corPrincipal);
     margin-bottom: 18px;
     padding: 10px 0;
+    overflow: hidden;
 
     .container {
-        display: flex;
+        overflow: hidden;
+        display: flex !important;
         justify-content: center;
-        gap: 50px;
 
-        .card {
-            width: 190px;
-            height: 80px;
-            background-size: contain; /* Ajusta a imagem para caber dentro da card sem distorções */
-            background-position: center;
-            background-repeat: no-repeat; /* Evita repetição da imagem */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        .swiper-parceiros {
+            width: 100%; // Para que o carrossel ocupe a largura total
+            display: flex !important;
 
-        .card h3 {
-            color: white; /* Cor do texto, caso necessário */
+            #wrapper-parceiros {
+                display: flex !important;
+            }
+
+            .card {
+                width: 190px !important;
+                height: 80px !important;
+                background-size: contain; // Ajusta a imagem para caber dentro do card sem distorções
+                background-position: center;
+                background-repeat: no-repeat; // Evita repetição da imagem
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .swiper-pagination {
+                position: absolute;
+                bottom: 10px; // Ajusta a posição da paginação, caso necessário
+                text-align: center;
+                width: 100%;
+            }
         }
     }
 }

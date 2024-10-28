@@ -35,11 +35,12 @@
             align-items: center;
             height: 150px;
             box-sizing: border-box;
+            margin-bottom: 100px;
         }
 
         .swiper-slide img {
             width: 250px !important;
-            height: 150px;
+            height: 250px;
             object-fit: contain;
         }
     }
