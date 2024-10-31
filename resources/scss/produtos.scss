@@ -1,0 +1,137 @@
+#produtos {
+    .container {
+        h2 {
+            margin: 40px 0;
+        }
+    }
+}
+
+#produtos-filtro {
+    padding: 0 15px;
+    margin: 40px 0;
+
+    .inputs {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        input,
+        select,
+        button {
+            height: 40px;
+            border: none;
+        }
+
+        label {
+            font-size: 12px;
+        }
+
+        input:focus,
+        select:focus,
+        button:focus {
+            outline: none;
+        }
+
+        .form-group {
+            height: 60px;
+            padding: 5px 10px;
+        }
+
+        .form-group:nth-child(1) {
+            border: 1px solid rgb(197, 197, 197);
+            display: flex;
+            flex-direction: column;
+            padding: 5px 25px;
+
+            border-radius: 50px 0 0 50px;
+
+            input,
+            select {
+                width: 100%;
+            }
+
+            width: 200px;
+        }
+
+        .form-group:nth-child(2) {
+            border-top: 1px solid rgb(197, 197, 197);
+            border-bottom: 1px solid rgb(197, 197, 197);
+            display: flex;
+            flex-direction: column;
+
+            input,
+            select {
+                width: 100%;
+            }
+
+            width: 200px;
+        }
+
+        .form-group:nth-child(3) {
+            border: 1px solid rgb(197, 197, 197);
+            display: flex;
+            flex-direction: column;
+
+            input,
+            select {
+                width: 100%;
+            }
+
+            width: calc(100% - 600px);
+        }
+
+        .form-group:nth-child(4) {
+            padding: 8px 8px 8px 0;
+
+            border-radius: 0 50px 50px 0;
+
+            border-top: 1px solid rgb(197, 197, 197);
+            border-bottom: 1px solid rgb(197, 197, 197);
+            border-right: 1px solid rgb(197, 197, 197);
+            display: flex;
+            flex-direction: column;
+            background-color: var(--corPreto);
+
+            input,
+            select {
+                width: 100%;
+            }
+
+            button {
+                height: 100%;
+                background-color: var(--corPreto);
+                color: var(--corBranco);
+
+                cursor: pointer;
+                transition: 0.2s ease-in-out;
+            }
+
+            transition: 0.2s ease-in-out;
+            width: 200px;
+        }
+
+        .form-group:nth-child(4):hover {
+            button {
+                background-color: var(--corPrincipal);
+            }
+
+            background-color: var(--corPrincipal);
+        }
+    }
+}
+
+#produtos-lista {
+    .card-produto {
+        a {
+            img {
+                height: 210px;
+                width: 100%;
+                object-fit: cover;
+            }
+
+            .produto-descricao {
+                height: 80px;
+            }
+        }
+    }
+}

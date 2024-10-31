@@ -1,7 +1,105 @@
 #produtos {
     .container {
-        .produtos-lista {
-            .card {
+        .diretorio {
+            padding: 0 15px;
+            margin: 50px 0;
+            font-size: 14px;
+
+            p {
+                color: var(--corPreto);
+            }
+        }
+
+        h2 {
+            color: var(--corQuaternaria);
+            font-size: 30px;
+            padding: 0 15px;
+        }
+
+        .diretorio + h2 + p {
+            color: var(--corPreto);
+            font-size: 14px;
+            padding: 0 15px;
+        }
+
+        #produtos-lista {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+
+            .card-produto {
+                min-width: 320px;
+                min-height: 490px;
+                flex: 1 1 30%;
+                padding: 15px;
+
+                a {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 20px;
+                }
+
+                position: relative;
+
+                .produto-valor {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    i {
+                        color: var(--corBranco);
+                        background-color: var(--corTerciaria);
+                        padding: 15px;
+                    }
+
+                    p {
+                        font-size: 25px;
+                        color: var(--corQuaternaria);
+                    }
+                }
+
+                .produto-descricao {
+                    span {
+                        font-size: 14px;
+                    }
+
+                    h4 {
+                        font-size: 20px;
+                    }
+                }
+
+                a {
+                    color: var(--corQuaternaria);
+                    width: 100%;
+                }
+
+                .produto-descricao + p {
+                    text-align: center;
+                    font-size: 14px;
+
+                    color: var(--corQuaternaria);
+
+                    i {
+                        margin-right: 10px;
+                    }
+                }
+
+                a > span {
+                    padding: 10px 40px;
+                    color: var(--corBranco);
+
+                    position: absolute;
+                    right: 0px;
+                    top: 25px;
+
+                    background-color: var(--corTerciaria);
+                }
+
+                img {
+                    width: 100%;
+                    min-width: 320px;
+                }
             }
         }
     }

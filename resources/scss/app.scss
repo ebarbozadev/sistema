@@ -94,6 +94,9 @@ a {
 @import url("./rodape.scss");
 @import url("./dinamica.scss");
 
+@import url("./produtos.scss");
+@import url("./produtosFiltros.scss");
+
 // Responsivo
 @media (max-width: 1466px) {
     header {

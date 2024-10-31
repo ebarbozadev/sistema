@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             // Defina o array de navegações que será usado globalmente
             $navegacoes = [
                 ['titulo' => 'PEDIDOS', 'url' => route('pedidos.index'), 'active' => request()->routeIs('pedidos.*')],
-                ['titulo' => 'PESQUISAR', 'url' => route('pesquisar.index'), 'active' => request()->routeIs('pesquisar.*')],
+                ['titulo' => 'PESQUISAR', 'url' => route('produtos.index'), 'active' => request()->routeIs('produtos.*')],
                 ['titulo' => 'CADASTRE-SE', 'url' => route('cadastrar.index'), 'active' => request()->routeIs('cadastrar.*')],
                 ['titulo' => 'FAÇA SEU ANÚNCIO', 'url' => route('anunciar.index'), 'active' => request()->routeIs('anunciar.*')],
                 ['titulo' => 'ENTRAR', 'url' => route('entrar.index'), 'active' => request()->routeIs('entrar.*')],
