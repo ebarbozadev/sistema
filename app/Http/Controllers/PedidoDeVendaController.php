@@ -76,30 +76,58 @@ class PedidoDeVendaController extends Controller
 
     public function processPayment(Request $request)
     {
-        // Validação dos dados do pagamento
-        $request->validate([
-            'payment_method' => 'required|string',
-            'amount_paid' => 'required|numeric|min:0.01',
+        $data = $request->all();
+
+        if ($data['method'] === 'cartao') {
+            // Integração com API de pagamento
+            $cardDetails = $data['card'];
+            $response = $this->processCardPayment($cardDetails, $data['amount']);
+
+            if (!$response['success']) {
+                return response()->json(['success' => false, 'message' => $response['message']]);
+            }
+        }
+
+        // Registrar o pagamento no banco de dados
+        Payment::create([
+            'method' => $data['method'],
+            'amount' => $data['amount'],
+            // Outros dados podem ser adicionados se necessário
         ]);
 
-        // Processar o pagamento (simulação de lógica de pagamento)
-        $payment = [
-            'method' => $request->payment_method,
-            'amount' => $request->amount_paid,
-        ];
+        // Atualizar o resumo de pagamentos
+        $summary = $this->updateSummary(); // Certifique-se de implementar este método corretamente
 
-        // Salvar o pagamento na sessão (ou banco de dados, conforme necessário)
-        $payments = session()->get('payments', []);
-        $payments[] = $payment;
-        session()->put('payments', $payments);
-
-        // Calcular o total pago
-        $totalPaid = array_sum(array_column($payments, 'amount'));
-
-        // Redirecionar com sucesso
-        return redirect()->route('pdv.index')->with('success', 'Pagamento registrado com sucesso! Total pago: R$ ' . number_format($totalPaid, 2, ',', '.'));
+        return response()->json(['success' => true, 'summary' => $summary]);
     }
 
+    private function processCardPayment($cardDetails, $amount)
+    {
+        // Exemplo fictício de integração com API de pagamento
+        $apiResponse = PaymentAPI::charge([
+            'card_number' => $cardDetails['number'],
+            'card_holder' => $cardDetails['holder'],
+            'card_expiry' => $cardDetails['expiry'],
+            'card_cvv' => $cardDetails['cvv'],
+            'amount' => $amount,
+        ]);
+
+        return [
+            'success' => $apiResponse->isSuccess(),
+            'message' => $apiResponse->getMessage(),
+        ];
+    }
+
+    private function updateSummary()
+    {
+        // Lógica para calcular e atualizar o resumo de pagamentos
+        // Exemplo fictício
+        return [
+            'items' => 5, // Número de itens no pedido
+            'subtotal' => 500.00, // Subtotal calculado
+            'total' => 480.00, // Total considerando descontos ou acréscimos
+        ];
+    }
 
     public function addProduct(Request $request)
     {

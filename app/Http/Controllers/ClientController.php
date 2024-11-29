@@ -13,8 +13,21 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         // Customiza o comportamento do browser
-        $clients = Client::paginate(10); // Paginação personalizada
-        return view('voyager.clients.index', compact('clients'));
+        $clients = Client::select('id', 'name', 'email', 'tp_people', 'document', 'telephone_res', 'telephone_res_res', 'status')->paginate(10);
+
+        return view('vendor.voyager.clients.index', compact('clients'));
+    }
+
+    public function searchClients(Request $request)
+    {
+        $query = $request->get('query');
+
+        $clients = Client::where('name', 'like', "%{$query}%")
+            ->orWhere('id', $query) // Permite buscar diretamente pelo ID exato
+            ->take(10)
+            ->get(['id', 'name']); // Retorna apenas os campos necessários
+
+        return response()->json($clients);
     }
 
     public function create(Request $request)

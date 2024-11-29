@@ -24,6 +24,8 @@ Route::group(['prefix' => 'admin'], function () {
 
 
     Route::post('/employees', [EmployeesController::class, 'store'])->name('voyager.employees.store');
-    Route::put('/clients/{id}', [ClientController::class, 'update'])->name('clients.update');
+    Route::get('/search-clients', [ClientController::class, 'searchClients'])->name('search_clients');
     Route::get('clients', [ClientController::class, 'index'])->name('voyager.clients.index');
+    Route::get('clients/{id}/edit', [ClientController::class, 'edit'])->name('voyager.clients.edit');
+    Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('voyager.clients.destroy');
 });
