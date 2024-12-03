@@ -1,4 +1,6 @@
 @php
+$edit = !is_null($dataTypeContent) && !is_null($dataTypeContent->getKey());
+$add = is_null($dataTypeContent) || is_null($dataTypeContent->getKey());
 
 $edit = !is_null($dataTypeContent->getKey());
 $add = is_null($dataTypeContent->getKey());
@@ -178,9 +180,9 @@ $dataType->getTranslatedAttribute('display_name_singular'))
 
                     <div class="panel-body">
                         <div class="form-group">
-                            <label for="name">Nome</label>
-                            <input required type="text" class="form-control" id="name" name="name"
-                                placeholder="Nome" value="{{ old('name', $dataTypeContent->name ?? '') }}">
+                            <label for="nome">Nome</label>
+                            <input required type="text" class="form-control" id="nome" name="nome"
+                                placeholder="Nome" value="{{ old('nome', $dataTypeContent->nome ?? '') }}">
                         </div>
 
                         <div class="form-group">
@@ -190,39 +192,38 @@ $dataType->getTranslatedAttribute('display_name_singular'))
                         </div>
 
                         <div class="form-group">
-                            <label for="tp_people">Tipo de Pessoa</label>
-                            <select name="tp_people" id="tp_people" class="form-control">
+                            <label for="tipo_pessoa">Tipo de Pessoa</label>
+                            <select name="tipo_pessoa" id="tipo_pessoa" class="form-control">
                                 <option value="">Selecione</option>
-                                <option value="f" {{ old('tp_people', $dataTypeContent->tp_people ?? '') == 'f' ? 'selected' : '' }}>Física</option>
-                                <option value="j" {{ old('tp_people', $dataTypeContent->tp_people ?? '') == 'j' ? 'selected' : '' }}>Jurídica</option>
+                                <option value="f" {{ old('tipo_pessoa', $dataTypeContent->tipo_pessoa ?? '') == 'f' ? 'selected' : '' }}>Física</option>
+                                <option value="j" {{ old('tipo_pessoa', $dataTypeContent->tipo_pessoa ?? '') == 'j' ? 'selected' : '' }}>Jurídica</option>
                             </select>
                         </div>
 
 
                         <div class="form-group">
-                            <label for="document">Documento</label>
-                            <input required type="text" class="form-control" id="document" name="document"
-                                placeholder="Documento" value="{{ old('document', $dataTypeContent->document ?? '') }}">
+                            <label for="documento">Documento</label>
+                            <input required type="text" class="form-control" id="documento" name="documento"
+                                placeholder="Documentoo" value="{{ old('documento', $dataTypeContent->documento ?? '') }}">
                         </div>
 
                         <div class="form-group">
-                            <label for="date_of_birth">Data de Nascimento</label>
-                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
-                                value="{{ old('date_of_birth', isset($dataTypeContent->date_of_birth) ? \Illuminate\Support\Carbon::parse($dataTypeContent->date_of_birth)->format('Y-m-d') : '') }}">
+                            <label for="data_nascimento">Data de Nascimento</label>
+                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
+                                value="{{ old('data_nascimento', $dataTypeContent->data_nascimento)}}">
                         </div>
 
-
                         <div class="form-group">
-                            <label for="document">Status</label>
+                            <label for="ativoActive">Status</label>
 
-                            <label for="statusActive">
-                                <input {{ ($dataTypeContent->status == "1" || $dataTypeContent->status === null) ? 'checked' : '' }} type="radio" name="status" id="statusActive" value="1">
+                            <label for="ativoActive">
+                                <input {{ ($dataTypeContent->ativo == "1" || $dataTypeContent->ativo === null) ? 'checked' : '' }} type="radio" name="ativo" id="ativoActive" value="1">
 
                                 Ativo
                             </label>
 
-                            <label for="statusInactive">
-                                <input {{ ($dataTypeContent->status == "0") ? 'checked' : '' }} type="radio" name="status" id="statusActive" value="1">
+                            <label for="ativoInactive">
+                                <input {{ ($dataTypeContent->ativo == "0") ? 'checked' : '' }} type="radio" name="ativo" id="ativoActive" value="1">
                                 Inativo
                             </label>
                         </div>
@@ -246,42 +247,42 @@ $dataType->getTranslatedAttribute('display_name_singular'))
                                 <!-- Residencial -->
                                 <div class="tab-pane active" id="residencial">
                                     <div class="form-group">
-                                        <label for="telephone_res">Telefone Residencial</label>
-                                        <input type="text" class="form-control" id="telephone_res" name="telephone_res"
-                                            value="{{ old('telephone_res', $dataTypeContent->telephone_res ?? '') }}">
+                                        <label for="telefone_residencial">Telefone Residencial</label>
+                                        <input type="text" class="form-control" id="telefone_residencial" name="telefone_residencial"
+                                            value="{{ old('telefone_residencial', $dataTypeContent->telefone_residencial ?? '') }}">
                                     </div>
                                     <div class="form-group">
-                                        <label for="telephone_res_res">Endereço Residencial</label>
-                                        <input type="text" class="form-control" id="telephone_res_res" name="telephone_res_res"
-                                            value="{{ old('telephone_res_res', $dataTypeContent->telephone_res_res ?? '') }}">
+                                        <label for="endereco_residencial">Endereço Residencial</label>
+                                        <input type="text" class="form-control" id="endereco_residencial" name="endereco_residencial"
+                                            value="{{ old('endereco_residencial', $dataTypeContent->endereco_residencial ?? '') }}">
                                     </div>
                                 </div>
 
                                 <!-- Comercial -->
                                 <div class="tab-pane" id="comercial">
                                     <div class="form-group">
-                                        <label for="telephone_com">Telefone Comercial</label>
-                                        <input type="text" class="form-control" id="telephone_com" name="telephone_com"
-                                            value="{{ old('telephone_com', $dataTypeContent->telephone_com ?? '') }}">
+                                        <label for="telefone_comercial">Telefone Comercial</label>
+                                        <input type="text" class="form-control" id="telefone_comercial" name="telefone_comercial"
+                                            value="{{ old('telefone_comercial', $dataTypeContent->telefone_comercial ?? '') }}">
                                     </div>
                                     <div class="form-group">
-                                        <label for="telephone_com_res">Endereço Comercial</label>
-                                        <input type="text" class="form-control" id="telephone_com_res" name="telephone_com_res"
-                                            value="{{ old('telephone_com_res', $dataTypeContent->telephone_com_res ?? '') }}">
+                                        <label for="endereco_comercial">Endereço Comercial</label>
+                                        <input type="text" class="form-control" id="endereco_comercial" name="endereco_comercial"
+                                            value="{{ old('endereco_comercial', $dataTypeContent->endereco_comercial ?? '') }}">
                                     </div>
                                 </div>
 
                                 <!-- Outro -->
                                 <div class="tab-pane" id="outro">
                                     <div class="form-group">
-                                        <label for="telephone_other">Telefone Outro</label>
-                                        <input type="text" class="form-control" id="telephone_other" name="telephone_other"
-                                            value="{{ old('telephone_other', $dataTypeContent->telephone_other ?? '') }}">
+                                        <label for="telefone_outros">Telefone Outro</label>
+                                        <input type="text" class="form-control" id="telefone_outros" name="telefone_outros"
+                                            value="{{ old('telefone_outros', $dataTypeContent->telefone_outros ?? '') }}">
                                     </div>
                                     <div class="form-group">
-                                        <label for="telephone_other_res">Endereço Outro</label>
-                                        <input type="text" class="form-control" id="telephone_other_res" name="telephone_other_res"
-                                            value="{{ old('telephone_other_res', $dataTypeContent->telephone_other_res ?? '') }}">
+                                        <label for="endereco_outros">Endereço Outro</label>
+                                        <input type="text" class="form-control" id="endereco_outros" name="endereco_outros"
+                                            value="{{ old('endereco_outros', $dataTypeContent->endereco_outros ?? '') }}">
                                     </div>
                                 </div>
                             </div>
@@ -296,7 +297,6 @@ $dataType->getTranslatedAttribute('display_name_singular'))
         </div>
     </div>
 </div>
-
 
 <div class="modal fade modal-danger" id="confirm_delete_modal">
     <div class="modal-dialog">

@@ -5,44 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
-class Product extends Model
+class Product extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     // Nome da tabela (se não seguir o padrão "products")
-    protected $table = 'produtos';
+    protected $table = 'products';
 
     // Campos que podem ser preenchidos em massa
     protected $fillable = [
         'id_empresa',
-        'id_categoria',
-        'id_marca',
-        'id_linha',
+        'id_fornecedor',
+        'id_usuario',
         'nome',
+        'descricao',
+        'imagens',
         'sexo',
         'estoque',
-        'estoqueMinimo',
-        'precoCusto',
-        'precoVenda',
-        'status',
-        'descricao',
-        'images',
-        'slug',
-        'id_usuario',
+        'estoque_minimo',
+        'preco_custo',
+        'preco_venda',
+        'ativo',
+        'id_categoria',
+        'id_marca',
+        'id_linha'
     ];
 
     // Campos que serão tratados como datas
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
-    /**
-     * Relacionamento com a empresa.
-     * Exemplo: Um produto pertence a uma empresa.
-     */
-    public function empresa()
-    {
-        return $this->belongsTo(Empresa::class, 'id_empresa');
-    }
 
     /**
      * Relacionamento com o usuário.
@@ -51,6 +44,15 @@ class Product extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'id_usuario');
+    }
+
+    /**
+     * Relacionamento com o usuário.
+     * Exemplo: Um produto pertence a um usuário.
+     */
+    public function fornecedor()
+    {
+        return $this->belongsTo(Fornecedore::class, 'id_fornecedor');
     }
 
     /**
@@ -85,7 +87,7 @@ class Product extends Model
      */
     public function scopeAtivos($query)
     {
-        return $query->where('status', 1);
+        return $query->where('ativo', '1');
     }
 
     /**
@@ -101,7 +103,7 @@ class Product extends Model
      */
     public function getStatusTextAttribute()
     {
-        return $this->status ? 'Ativo' : 'Inativo';
+        return $this->ativo ? 'Ativo' : 'Inativo';
     }
 
     /**
@@ -115,5 +117,17 @@ class Product extends Model
             'U' => 'Unissex',
             default => 'Não especificado',
         };
+    }
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($fornecedor) {
+            if (Auth::check()) {
+                $fornecedor->id_usuario = Auth::id();
+                $fornecedor->id_empresa = Auth::user()->id_empresa;
+            }
+        });
     }
 }

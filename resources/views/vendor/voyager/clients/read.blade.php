@@ -41,7 +41,7 @@
                         <h3 class="panel-title">Nome</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->name }}</p>
+                        <p>{{ $dataTypeContent->nome }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
@@ -56,9 +56,9 @@
                     </div>
                     <div class="panel-body" style="padding-top:0;">
                         <p>
-                            @if($dataTypeContent->tp_people == 'j')
+                            @if($dataTypeContent->tipo_pessoa == 'J')
                             Jurídica
-                            @elseif($dataTypeContent->tp_people == 'f')
+                            @elseif($dataTypeContent->tipo_pessoa == 'F')
                             Física
                             @else
                             Não especificado
@@ -70,49 +70,49 @@
                         <h3 class="panel-title">Documento</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->document }}</p>
+                        <p>{{ $dataTypeContent->documento }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Telefone Residencial</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_res }}</p>
+                        <p>{{ $dataTypeContent->telefone_residencial }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Endereço Residencial</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_res_res }}</p>
+                        <p>{{ $dataTypeContent->endereco_residencial }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Telefone Comercial</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_com }}</p>
+                        <p>{{ $dataTypeContent->telefone_comercial }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Endereço Comercial</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_com_res }}</p>
+                        <p>{{ $dataTypeContent->endereco_comercial }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Telefone Outro</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_other }}</p>
+                        <p>{{ $dataTypeContent->telefone_outro }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
                         <h3 class="panel-title">Endereço Outro</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->telephone_other_res }}</p>
+                        <p>{{ $dataTypeContent->endereco_outro }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
@@ -120,7 +120,7 @@
                     </div>
                     <div class="panel-body" style="padding-top:0;">
                         <p>
-                            @if($dataTypeContent->status == 1)
+                            @if($dataTypeContent->ativo == 1)
                             Active
                             @else
                             Inactive
@@ -132,7 +132,7 @@
                         <h3 class="panel-title">Data de Aniversário</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ \Carbon\Carbon::parse($dataTypeContent->date_of_birth)->format('d/m/Y') }}</p>
+                        <p>{{ \Carbon\Carbon::parse($dataTypeContent->data_aniversario)->format('d/m/Y') }}</p>
                     </div>
                 </div>
             </div>

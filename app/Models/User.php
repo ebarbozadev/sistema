@@ -9,7 +9,7 @@ use TCG\Voyager\Traits\VoyagerUser;
 use TCG\Voyager\Contracts\User as VoyagerUserContract; // Importe a interface
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements VoyagerUserContract // Implemente a interface
+class User extends \TCG\Voyager\Models\User implements VoyagerUserContract // Implemente a interface
 {
     use HasApiTokens, HasFactory, Notifiable, VoyagerUser;
 
@@ -24,7 +24,7 @@ class User extends Authenticatable implements VoyagerUserContract // Implemente 
         'email',
         'password',
         'teste',
-        'role_id'
+        'role_id',
     ];
 
     /**
@@ -47,8 +47,8 @@ class User extends Authenticatable implements VoyagerUserContract // Implemente 
         'password' => 'hashed',
     ];
 
-    // public function empresa()
-    // {
-    //     return $this->belongsTo(Empresa::class, 'id_empresa');
-    // }
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class, 'id_empresa');
+    }
 }

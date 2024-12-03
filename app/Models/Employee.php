@@ -6,14 +6,14 @@ use Illuminate\Support\Facades\Auth;
 
 class Employee extends BaseModel
 {
-    protected static function booted()
+    protected static function booted(): void
     {
         parent::booted();
 
-        static::creating(function ($fornecedor) {
+        static::creating(function ($funcionario) {
             if (Auth::check()) {
-                $fornecedor->id_usuario = Auth::id();
-                $fornecedor->id_empresa = Auth::user()->id_empresa;
+                $funcionario->id_usuario = Auth::id();
+                $funcionario->id_empresa = Auth::user()->id_empresa;
             }
         });
     }

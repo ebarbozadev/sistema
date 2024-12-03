@@ -4,21 +4,21 @@ namespace App\Models;
 
 use Illuminate\Support\Facades\Auth;
 
-class Client extends BaseModel
+class Cliente extends BaseModel
 {
     protected $fillable = [
-        'name',
+        'nome',
         'email',
-        'tp_people',
-        'document',
-        'date_of_birth',
-        'telephone_res',
-        'telephone_res_res',
-        'telephone_com',
-        'telephone_com_res',
-        'telephone_other',
-        'telephone_other_res',
-        'status',
+        'tipo_pessoa',
+        'documento',
+        'data_nascimento',
+        'telefone_residencial',
+        'endereco_residencial',
+        'telefone_comercial',
+        'endereco_comercial',
+        'telefone_outros',
+        'endereco_outros',
+        'ativo',
         'id_empresa',
         'id_usuario'
     ];

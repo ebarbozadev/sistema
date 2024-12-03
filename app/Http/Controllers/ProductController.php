@@ -5,21 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function searchProducts(Request $request)
     {
-        // Obter o id_empresa do usuário autenticado
-        $idEmpresa = Auth::user()->id_empresa;
+        $query = $request->input('query');
 
-        // Buscar produtos pelo termo de descrição e id_empresa
-        $products = Product::where('id_empresa', $idEmpresa)
-            ->where('nome', 'like', '%' . $request->input('query') . '%')
-            ->take(10) // Limitar os resultados para evitar sobrecarga
-            ->get(['id', 'nome', 'precoVenda']); // Selecionar somente os campos necessários
+        // Validação básica
+        if (!$query) {
+            return response()->json([], 200);
+        }
+
+        // Busca produtos pelo nome ou código que correspondem à consulta
+        $products = Product::where('nome', 'LIKE', "%{$query}%")
+            ->orWhere('id', $query)
+            ->limit(10)
+            ->get(['id', 'nome', 'precoVenda']); // Seleciona apenas os campos necessários
 
         return response()->json($products);
+    }
+
+    public function removeImage(Request $request)
+    {
+        $imagem = $request->input('id');
+        if (Storage::exists($imagem)) {
+            Storage::delete($imagem);
+            return response()->json(['message' => 'Imagem removida com sucesso!']);
+        }
+        return response()->json(['message' => 'Erro ao remover imagem.'], 400);
     }
 
     public function searchProductByCode($code)
@@ -28,8 +43,8 @@ class ProductController extends Controller
 
         if ($product) {
             return response()->json($product);
+        } else {
+            return response()->json(['message' => 'Produto não encontrado.'], 404);
         }
-
-        return response()->json(null, 404); // Produto não encontrado
     }
 }

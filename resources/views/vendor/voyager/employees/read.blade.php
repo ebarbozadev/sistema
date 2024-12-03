@@ -77,7 +77,7 @@
                         <h3 class="panel-title">Data de Nascimento</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ $dataTypeContent->dtNascimento }}</p>
+                        <p>{{ $dataTypeContent->data_nascimento }}</p>
                     </div>
 
                     <div class="panel-heading" style="border-bottom:0;">
@@ -92,10 +92,10 @@
                     </div>
                     <div class="panel-body" style="padding-top:0;">
                         <p>
-                            @if($dataTypeContent->status == 1)
-                            Active
+                            @if($dataTypeContent->ativo == 1)
+                            Ativo
                             @else
-                            Inactive
+                            Inativo
                             @endif
                         </p>
                     </div>
@@ -104,7 +104,7 @@
                         <h3 class="panel-title">Data de Aniversário</h3>
                     </div>
                     <div class="panel-body" style="padding-top:0;">
-                        <p>{{ \Carbon\Carbon::parse($dataTypeContent->date_of_birth)->format('d/m/Y') }}</p>
+                        <p>{{ \Carbon\Carbon::parse($dataTypeContent->data_aniversario)->format('d/m/Y') }}</p>
                     </div>
                 </div>
             </div>

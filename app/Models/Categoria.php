@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class Categoria extends Model
+class Categoria extends BaseModel
 {
     protected static function booted()
     {
         parent::booted();
 
-        static::creating(function ($fornecedor) {
+        static::creating(function ($categoria) {
             if (Auth::check()) {
-                $fornecedor->id_usuario = Auth::id();
-                $fornecedor->id_empresa = Auth::user()->id_empresa;
+                $categoria->id_usuario = Auth::id();
+                $categoria->id_empresa = Auth::user()->id_empresa;
             }
         });
     }
