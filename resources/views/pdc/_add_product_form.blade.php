@@ -131,7 +131,7 @@
             }).format(newTotal);
 
             // Atualiza o backend
-            fetch(`/admin/update-product/${existingRow.querySelector('input.update-quantity').dataset.index}`, {
+            fetch(`/admin/c/update-product/${existingRow.querySelector('input.update-quantity').dataset.index}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -161,7 +161,7 @@
                 .catch((error) => console.error('Erro ao processar a requisição:', error));
         } else {
             // Adiciona um novo produto à tabela
-            fetch('/admin/add-product', {
+            fetch('/admin/c/add-product', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -195,7 +195,7 @@
                         <td>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.product.unit_price)}</td>
                         <td>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data.product.total_price)}</td>
                         <td style="text-align: center;">
-                            <form action="/admin/remove-product/${data.product.code}" method="POST" style="display:inline;">
+                            <form action="/admin/c/remove-product/${data.product.code}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger">Remover</button>
@@ -241,7 +241,7 @@
             <td>${product.unit_price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
             <td>${product.total_price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
             <td>
-                <form action="/admin/remove-product/${product.index}" method="POST" style="display:inline;">
+                <form action="/admin/c/remove-product/${product.index}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-sm btn-danger">Remover</button>
@@ -266,7 +266,7 @@
         const code = codeInput.value.trim(); // Obtém o código do produto
 
         if (code) {
-            fetch(`/admin/search-product-by-code/${code}`)
+            fetch(`/admin/c/search-product-by-code/${code}`)
                 .then(response => response.json())
                 .then(product => {
                     if (product && product.id) {
@@ -309,7 +309,7 @@
         const query = this.value;
 
         if (query.length >= 2) {
-            fetch(`/admin/search-products?query=${query}`)
+            fetch(`/admin/c/search-products?query=${query}`)
                 .then((response) => response.json())
                 .then((products) => {
                     suggestionsBox.innerHTML = ''; // Limpa as sugestões anteriores

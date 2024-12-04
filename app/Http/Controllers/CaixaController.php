@@ -2,81 +2,135 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\MovCaixa;
 use App\Models\Caixa;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CaixaController extends Controller
 {
     public function index()
     {
-        // Pegue os dados necessários para exibir no view
-        $caixas = []; // Busque os dados reais do banco se necessário.
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
 
-        return view('voyager::caixas.index', compact('caixas'));
+        return view('caixa.index', compact('caixaAberto'));
     }
 
-
-    public function info($id)
-    {
-        $movimentacao = MovCaixa::findOrFail($id);
-        return view('caixa.info', compact('movimentacao'));
-    }
-
-    public function edit($id)
-    {
-        $movimentacao = MovCaixa::findOrFail($id);
-        return view('caixa.edit', compact('movimentacao'));
-    }
-
-
-    public function storeMovimentacao(Request $request)
+    public function abrirCaixa(Request $request)
     {
         $request->validate([
-            'TIPO_MOVIMENTACAO' => 'required|string|in:Venda,Sangria,Suprimento,Pagamento,Recebimento',
-            'VALOR' => 'required|numeric|min:0.01',
-            'DESCRICAO' => 'nullable|string|max:255',
+            'saldo_inicial' => 'required|numeric|min:0',
         ]);
 
-        $caixaAberto = Caixa::where('STATUS', 'Aberto')->first();
+        // Verifica se já existe um caixa aberto
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
 
-        if (!$caixaAberto) {
-            return redirect()->route('caixa.index')->with('error', 'Nenhum caixa está aberto.');
+        if ($caixaAberto) {
+            return redirect()->back()->with('error', 'Já existe um caixa aberto.');
         }
 
-        MovCaixa::create([
-            'ID_CAIXA' => $caixaAberto->ID,
-            'ID_EMPRESA' => $caixaAberto->ID_EMPRESA,
-            'ID_USUARIO' => auth()->id(),
-            'TIPO_MOVIMENTACAO' => $request->TIPO_MOVIMENTACAO,
-            'VALOR' => $request->VALOR,
-            'DESCRICAO' => $request->DESCRICAO,
+        // Cria um novo caixa
+        $caixa = Caixa::create([
+            'id_empresa' => Auth::user()->id_empresa,
+            'id_usuario' => Auth::id(),
+            'saldo_inicial' => $request->input('saldo_inicial'),
+            'saldo_atual' => $request->input('saldo_inicial'),
+            'status' => 'Aberto',
+            'data_abertura' => now(),
         ]);
 
-        $caixaAberto->SALDO_ATUAL += $request->TIPO_MOVIMENTACAO === 'Venda' || $request->TIPO_MOVIMENTACAO === 'Recebimento'
-            ? $request->VALOR
-            : -$request->VALOR;
-
-        $caixaAberto->save();
-
-        return redirect()->route('caixa.index')->with('success', 'Movimentação registrada com sucesso.');
+        return redirect()->route('caixa.index')->with('success', 'Caixa aberto com sucesso!');
     }
 
-    public function fecharCaixa(Request $request)
+    public function verificarCaixa()
     {
-        $caixaAberto = Caixa::where('STATUS', 'Aberto')->first();
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
 
-        if (!$caixaAberto) {
-            return redirect()->route('caixa.index')->with('error', 'Nenhum caixa está aberto.');
+        if ($caixaAberto) {
+            $dataAbertura = $caixaAberto->data_abertura->format('Y-m-d');
+            $hoje = now()->format('Y-m-d');
+
+            if ($dataAbertura != $hoje) {
+                // Caixa aberto não é de hoje, precisa fechar
+                return view('caixa.fechar', compact('caixaAberto'));
+            }
+        } else {
+            // Não há caixa aberto, redireciona para abrir um novo caixa
+            return redirect()->route('caixa.index')->with('error', 'Não há caixa aberto. Abra um caixa para continuar.');
         }
 
-        $caixaAberto->update([
-            'STATUS' => 'Fechado',
-            'SALDO_FECHAMENTO' => $caixaAberto->SALDO_ATUAL,
-            'DATA_FECHAMENTO' => Carbon::now(),
+        // Caixa está ok
+        return redirect()->route('sales.sales'); // Ajuste para a rota correta
+    }
+
+    // Método para fechar o caixa anterior
+    public function fecharCaixaAnterior()
+    {
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
+
+        if (!$caixaAberto) {
+            // Não há caixa aberto, redireciona para abrir um novo caixa
+            return redirect()->route('caixa.index')->with('error', 'Não há caixa aberto para fechar.');
+        }
+
+        return view('caixa.fechar_anterior', compact('caixaAberto'));
+    }
+
+    // Método para processar o fechamento do caixa anterior
+    public function processarFechamentoAnterior(Request $request)
+    {
+        $request->validate([
+            'saldo_fechamento' => 'required|numeric',
         ]);
 
-        return redirect()->route('caixa.index')->with('success', 'Caixa fechado com sucesso.');
+        $caixa = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
+
+        if (!$caixa) {
+            return redirect()->route('caixa.index')->with('error', 'Não há caixa aberto para fechar.');
+        }
+
+        // Atualiza o caixa com os dados de fechamento
+        $caixa->update([
+            'saldo_fechamento' => $request->input('saldo_fechamento'),
+            'data_fechamento' => now(),
+            'status' => 'Fechado',
+        ]);
+
+        return redirect()->route('sales.sales')->with('success', 'Caixa fechado com sucesso!');
+    }
+
+
+    public function fecharCaixa(Request $request, $id)
+    {
+        $caixa = Caixa::findOrFail($id);
+
+        if ($caixa->status !== 'Aberto') {
+            return redirect()->back()->with('error', 'O caixa já está fechado ou não pode ser fechado.');
+        }
+
+        // Atualiza o caixa com os dados de fechamento
+        $caixa->update([
+            'saldo_fechamento' => $caixa->saldo_atual,
+            'status' => 'Fechado',
+            'data_fechamento' => now(),
+        ]);
+
+        return redirect()->route('caixa.index')->with('success', 'Caixa fechado com sucesso!');
+    }
+
+    public function detalhesCaixa($id)
+    {
+        $caixa = Caixa::with('movimentacoes')->findOrFail($id);
+
+        return view('caixa.detalhes', compact('caixa'));
     }
 }

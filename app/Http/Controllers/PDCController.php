@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Caixa;
 use App\Models\ContaReceber;
 use App\Models\MovCaixa;
-use App\Models\MovVenda;
-use App\Models\MovVendaIten;
+use App\Models\MovCompra;
+use App\Models\MovCompraIten;
 use App\Models\Product;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class PDVController extends Controller
+class PDCController extends Controller
 {
     public function index()
     {
@@ -89,10 +89,10 @@ class PDVController extends Controller
         $discountType = $request->input('discountType', 'desconto');
 
         if (empty($products)) {
-            return response()->json(['success' => false, 'message' => 'Adicione produtos à venda.']);
+            return response()->json(['success' => false, 'message' => 'Adicione produtos para comprar.']);
         }
 
-        // Calcula o resumo da venda
+        // Calcula o resumo da compra
         $summary = $this->calculateSummary($products, $discountType === 'desconto' ? $discountAmount : 0, $discountType === 'acrescimo' ? $discountAmount : 0);
         $totalPago = array_sum(array_column($payments, 'amount'));
 
@@ -103,23 +103,23 @@ class PDVController extends Controller
         DB::beginTransaction();
 
         try {
-            // Cria a venda
-            $venda = MovVenda::create([
+            // Cria a compra
+            $compra = MovCompra::create([
                 'id_usuario' => Auth::id(),
                 'id_empresa' => Auth::user()->id_empresa,
                 'id_cliente' => $cliente_id,
-                'DATA_VENDA' => now(),
+                'DATA_COMPRA' => now(),
                 'VL_TOTAL' => $summary['subtotal'],
                 'VL_DESCONTO' => $discountType === 'desconto' ? $discountAmount : 0,
                 'VL_LIQUIDO' => $summary['total'],
                 'STATUS' => 'Finalizada',
             ]);
 
-            // Adiciona os itens da venda
+            // Adiciona os itens da Compra
             $sequencia = 1;
             foreach ($products as $product) {
-                MovVendaIten::create([
-                    'ID_MOV_VENDA' => $venda->ID, // Alterado de $venda->id para $venda->ID
+                MovCompraIten::create([
+                    'ID_MOV_COMPRA' => $compra->ID, // Alterado de $compra->id para $compra->ID
                     'SEQUENCIA' => $sequencia++,
                     'QUANTIDADE' => $product['quantity'],
                     'VL_UNITARIO' => $product['unit_price'],
@@ -150,9 +150,9 @@ class PDVController extends Controller
                     'ID_CAIXA' => $caixa->id, // Alterado de $caixa->ID para $caixa->id
                     'ID_EMPRESA' => Auth::user()->id_empresa,
                     'ID_USUARIO' => Auth::id(),
-                    'ID_MOVIMENTO' => $venda->ID,
-                    'TIPO_MOVIMENTACAO' => 'Venda',
-                    'DESCRICAO' => 'Venda ID ' . $venda->ID,
+                    'ID_MOVIMENTO' => $compra->ID,
+                    'TIPO_MOVIMENTACAO' => 'Compra',
+                    'DESCRICAO' => 'Compra ID ' . $compra->ID,
                     'VALOR' => $payment['amount'],
                     'DATA_MOVIMENTACAO' => now(),
                 ]);
@@ -172,7 +172,7 @@ class PDVController extends Controller
                 'data_vencimento' => now(), // Ou especifique uma data futura
                 'parcela' => '1/1', // Ajuste conforme necessário
                 'status' => ($summary['total'] - $totalPago) > 0 ? 'Pendente' : 'Pago',
-                'descricao' => 'Venda ID ' . $venda->id,
+                'descricao' => 'Compra ID ' . $compra->id,
             ]);
 
             DB::commit();
@@ -180,11 +180,11 @@ class PDVController extends Controller
             // Limpa a sessão
             session()->forget(['products', 'payments']);
 
-            return response()->json(['success' => true, 'message' => 'Venda finalizada com sucesso.']);
+            return response()->json(['success' => true, 'message' => 'Compra finalizada com sucesso.']);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao finalizar venda: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Erro ao finalizar venda: ' . $e->getMessage()]);
+            Log::error('Erro ao finalizar Compra: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Erro ao finalizar Compra: ' . $e->getMessage()]);
         }
     }
 

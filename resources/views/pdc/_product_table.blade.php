@@ -79,7 +79,7 @@
                     const quantity = this.value;
 
                     if (quantity && quantity > 0) {
-                        fetch(`/admin/update-product/${index}`, {
+                        fetch(`/admin/c/update-product/${index}`, {
                                 method: 'PATCH',
                                 headers: {
                                     'Content-Type': 'application/json',

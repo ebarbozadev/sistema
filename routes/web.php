@@ -7,8 +7,13 @@ use Illuminate\Support\Facades\Route;
 use TCG\Voyager\Facades\Voyager;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\PedidoDeVendaController;
+
+use App\Http\Controllers\PedidoDeCompraController;
+use App\Http\Controllers\PDCController;
+
 use App\Http\Controllers\CaixaController;
 use App\Http\Controllers\ContasReceberController;
+use App\Http\Controllers\FornecedoreController;
 use App\Http\Controllers\PDVController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -21,16 +26,35 @@ Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 
     Route::get('/teste', [MainController::class, 'teste']);
+    Route::get('/search-product-by-code/{code}', [ProductController::class, 'searchProductByCode']);
+    Route::post('voyager/products/media/remove', [VoyagerMediaController::class, 'remove'])->name('voyager.products.media.remove');
+    // Route::get('/search-products', [ProductController::class, 'searchProducts'])->name('admin.search-products');
+    Route::get('/search-products', [ProductController::class, 'searchProducts']);
+
+
+    // Venda
     Route::get('/pedido-de-venda', [PedidoDeVendaController::class, 'index'])->name('pdv.index');
     Route::delete('/remove-product/{index}', [PedidoDeVendaController::class, 'removeProduct'])->name('remove_product');
-    Route::get('/search-product-by-code/{code}', [ProductController::class, 'searchProductByCode']);
     Route::patch('/update-product/{index}', [PedidoDeVendaController::class, 'updateProduct'])->name('update_product');
-
-    Route::post('voyager/products/media/remove', [VoyagerMediaController::class, 'remove'])->name('voyager.products.media.remove');
     Route::post('/add-product', [PedidoDeVendaController::class, 'addProduct'])->name('add_product');
-
     Route::post('/process-payment', [PedidoDeVendaController::class, 'processPayment'])->name('process_payment');
-    Route::get('/search-products', [ProductController::class, 'searchProducts'])->name('search_products');
+
+    Route::post('/add-product', [PDVController::class, 'addProduct'])->name('add_product');
+    Route::post('/finalize-sale', [PDVController::class, 'finalizeSale'])->name('finalize_sale');
+
+
+    Route::group(['prefix' => '/c'], function () {
+        Route::get('/pedido-de-compra', [PedidoDeCompraController::class, 'index'])->name('pdc.index');
+        Route::post('/add-product', [PedidoDeCompraController::class, 'addProduct'])->name('pdc.add_product');
+        Route::patch('/update-product/{index}', [PedidoDeCompraController::class, 'updateProduct'])->name('pdc.update_product');
+        Route::delete('/remove-product/{index}', [PedidoDeCompraController::class, 'removeProduct'])->name('pdc.remove_product');
+        Route::post('/finalize-purchase', [PedidoDeCompraController::class, 'finalizePurchase'])->name('pdc.finalize_purchase');
+
+        // Rotas para buscar fornecedores
+        Route::get('/search-suppliers', [FornecedoreController::class, 'searchSuppliers'])->name('pdc.search_suppliers');
+    });
+
+
 
     Route::group(['prefix' => '/pagar-contas'], function () {
         Route::get('/', [ContasPagarController::class, 'index'])->name('voyager.pagar-contas.index');
@@ -47,17 +71,16 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('/receber-contas', [ContasReceberController::class, 'store'])->name('voyager.receber-contas.store');
     Route::put('/receber-contas/{id}', [ContasReceberController::class, 'update'])->name('voyager.receber-contas.update');
 
-    Route::get('/caixa', [CaixaController::class, 'index'])->name('voyager.caixas.index')->middleware('can:browse_caixas');
-    Route::get('/caixa/info/{id}', [CaixaController::class, 'info'])->name('caixa.info');
-    Route::get('/caixa/edit/{id}', [CaixaController::class, 'edit'])->name('caixa.edit');
-    Route::post('/caixa/movimentacao', [CaixaController::class, 'storeMovimentacao'])->name('caixa.movimentacao.store');
-    Route::post('/caixa/fechar', [CaixaController::class, 'fecharCaixa'])->name('caixa.fechar');
+    Route::get('/caixa', [CaixaController::class, 'index'])->name('caixa.index');
+    Route::post('/caixa/abrir', [CaixaController::class, 'abrirCaixa'])->name('caixa.abrir');
+    Route::post('/caixa/fechar/{id}', [CaixaController::class, 'fecharCaixa'])->name('caixa.fechar');
+    Route::get('/caixa/detalhes/{id}', [CaixaController::class, 'detalhesCaixa'])->name('caixa.detalhes');
 
-    Route::get('/pedido-de-venda', [PDVController::class, 'index'])->name('pdv');
-    Route::post('/add-product', [PDVController::class, 'addProduct'])->name('add_product');
-    Route::post('/finalize-sale', [PDVController::class, 'finalizeSale'])->name('finalize_sale');
-    Route::get('/search-products', [ProductController::class, 'searchByDescription']);
-    Route::get('/search-clients', [ClientController::class, 'search']);
+    Route::get('/caixa/verificar', [CaixaController::class, 'verificarCaixa'])->name('caixa.verificar');
+    Route::get('/caixa/fechar-anterior', [CaixaController::class, 'fecharCaixaAnterior'])->name('caixa.fecharAnterior');
+    Route::post('/caixa/fechar-anterior', [CaixaController::class, 'processarFechamentoAnterior'])->name('caixa.processarFechamentoAnterior');
+
+    Route::get('/search-clients', [ClientController::class, 'searchClients']);
 
     Route::post('/employees', [EmployeesController::class, 'store'])->name('voyager.employees.store');
 

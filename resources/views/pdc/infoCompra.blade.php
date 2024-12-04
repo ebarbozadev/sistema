@@ -1,25 +1,25 @@
 <div class="form-group">
     <div class="form-group" style="position: relative;">
-        <label for="client-search">Pesquisar Cliente</label>
+        <label for="supplier-search">Pesquisar Fornecedor</label>
         <input
             type="text"
-            id="client-search"
-            name="client_search"
+            id="supplier-search"
+            name="supplier_search"
             class="form-control"
-            placeholder="Digite o nome ou ID do cliente"
+            placeholder="Digite o nome ou ID do fornecedor"
             autocomplete="off" />
-        <div id="client-suggestions"></div>
+        <div id="supplier-suggestions"></div>
     </div>
 
     <div class="form-group">
-        <label for="selected-client">Cliente Selecionado</label>
+        <label for="selected-supplier">Fornecedor Selecionado</label>
         <input
             type="text"
-            id="selected-client"
-            name="selected_client"
+            id="selected-supplier"
+            name="selected_supplier"
             class="form-control"
             readonly
-            data-client-id="" />
+            data-supplier-id="" />
     </div>
 
     <div class="form-group">
@@ -62,40 +62,38 @@
 
 <script>
     (() => {
-        const clientSearchInput = document.getElementById("client-search");
-        const selectedClientInput = document.getElementById("selected-client");
-        const suggestionsBox = document.getElementById("client-suggestions");
+        const supplierSearchInput = document.getElementById("supplier-search");
+        const selectedSupplierInput = document.getElementById("selected-supplier");
+        const suggestionsBox = document.getElementById("supplier-suggestions");
 
-        // Atualiza o campo "Cliente Selecionado"
-        function selectClient(client) {
-            selectedClientInput.value = `${client.nome} (ID: ${client.id})`;
-            selectedClientInput.dataset.clientId = client.id; // Armazena o ID do cliente
-            clientSearchInput.value = "";
+        function selectSupplier(supplier) {
+            selectedSupplierInput.value = `${supplier.nome} (ID: ${supplier.id})`;
+            selectedSupplierInput.dataset.supplierId = supplier.id;
+            supplierSearchInput.value = "";
             suggestionsBox.style.display = "none";
         }
 
-        // Pesquisa de clientes em tempo real
-        clientSearchInput.addEventListener("input", function() {
+        supplierSearchInput.addEventListener("input", function() {
             const query = this.value;
 
-            if (query.length > 0) { // Permite buscar mesmo com 1 caractere para IDs
-                fetch(`/admin/search-clients?query=${query}`)
+            if (query.length > 0) {
+                fetch(`/admin/c/search-suppliers?query=${query}`)
                     .then((response) => response.json())
-                    .then((clients) => {
+                    .then((suppliers) => {
                         suggestionsBox.innerHTML = "";
 
-                        if (clients.length > 0) {
+                        if (suppliers.length > 0) {
                             suggestionsBox.style.display = "block";
 
-                            clients.forEach((client) => {
+                            suppliers.forEach((supplier) => {
                                 const suggestionItem = document.createElement("a");
-                                suggestionItem.textContent = `${client.nome} (ID: ${client.id})`;
-                                suggestionItem.dataset.id = client.id;
+                                suggestionItem.textContent = `${supplier.nome} (ID: ${supplier.id})`;
+                                suggestionItem.dataset.id = supplier.id;
                                 suggestionItem.classList.add("dropdown-item");
 
                                 suggestionItem.addEventListener("click", function(e) {
                                     e.preventDefault();
-                                    selectClient(client);
+                                    selectSupplier(supplier);
                                 });
 
                                 suggestionsBox.appendChild(suggestionItem);
@@ -104,7 +102,7 @@
                             suggestionsBox.style.display = "none";
                         }
                     })
-                    .catch((error) => console.error("Erro ao buscar clientes:", error));
+                    .catch((error) => console.error("Erro ao buscar fornecedores:", error));
             } else {
                 suggestionsBox.style.display = "none";
             }
@@ -112,7 +110,7 @@
 
         // Esconde as sugestões se clicar fora do campo
         document.addEventListener("click", function(e) {
-            if (!clientSearchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+            if (!supplierSearchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
                 suggestionsBox.style.display = "none";
             }
         });

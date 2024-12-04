@@ -12,34 +12,34 @@ class ContaPagar extends Model
     protected $table = 'pagar_contas';
 
     protected $fillable = [
-        'ID_EMPRESA',
-        'ID_USUARIO',
-        'ID_FORNECEDOR',
-        'DESCRICAO',
-        'VALOR',
-        'DATA_VENCIMENTO',
-        'DATA_PAGAMENTO',
-        'PARCELA',
-        'STATUS',
-        'DATA_CRIACAO',
-        'DATA_ATUALIZACAO',
+        'id_empresa',
+        'id_usuario',
+        'id_fornecedor',
+        'descricao',
+        'valor',
+        'data_vencimento',
+        'data_pagamento',
+        'parcela',
+        'status',
+        'data_criacao',
+        'data_atualizacao',
     ];
 
-    const UPDATED_AT = 'DATA_ATUALIZACAO';
-    const CREATED_AT = 'DATA_CRIACAO';
+    const UPDATED_AT = 'data_atualizacao';
+    const CREATED_AT = 'data_criacao';
 
     public function fornecedor()
     {
-        return $this->belongsTo(Fornecedore::class, 'ID_FORNECEDOR');
+        return $this->belongsTo(Fornecedore::class, 'id_fornecedor');
     }
 
     public function empresa()
     {
-        return $this->belongsTo(Empresa::class, 'ID_EMPRESA');
+        return $this->belongsTo(Empresa::class, 'id_empresa');
     }
 
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'ID_USUARIO');
+        return $this->belongsTo(User::class, 'id_usuario');
     }
 }

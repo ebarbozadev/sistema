@@ -3,46 +3,115 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caixa;
+use App\Models\MovCompra;
+use App\Models\MovCompraIten;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
-class PedidoDeVendaController extends Controller
+class PedidoDeCompraController extends Controller
 {
     public function index()
     {
-        // Verifica o caixa
-        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
-            ->where('status', 'Aberto')
-            ->first();
+        // Limpa os produtos e pagamentos da sessão
+        session()->forget(['products', 'payments']);
 
-        if ($caixaAberto) {
-            $dataAbertura = $caixaAberto->data_abertura;
-            $hoje = now()->format('Y-m-d');
+        // Inicia produtos e resumo vazios
+        $products = [];
+        $summary = $this->calculateSummary($products);
 
-            if ($dataAbertura != $hoje) {
-                // Redireciona para a tela de fechamento do caixa
-                return redirect()->route('caixa.fecharAnterior');
-            }
-        } else {
-            // Não há caixa aberto, redireciona para abrir um novo caixa
-            return redirect()->route('caixa.index')->with('error', 'Não há caixa aberto. Abra um caixa para continuar.');
+        return view('pedidoDeCompra.sales', compact('products', 'summary'));
+    }
+
+    private function calculateSummary(array $products, $discount = 0, $surcharge = 0)
+    {
+        $subtotal = array_sum(array_column($products, 'total_price'));
+
+        // Aplica descontos e acréscimos
+        $total = max(0, $subtotal - $discount + $surcharge);
+
+        return [
+            'items' => count($products),
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'surcharge' => $surcharge,
+            'total' => $total,
+        ];
+    }
+
+    public function finalizePurchase(Request $request)
+    {
+        $products = session('products', []);
+        $payments = $request->input('payments', []);
+        $fornecedor_id = $request->input('fornecedor_id');
+        $discountAmount = $request->input('discountAmount', 0);
+        $discountType = $request->input('discountType', 'desconto');
+
+        if (empty($products)) {
+            return response()->json(['success' => false, 'message' => 'Adicione produtos à compra.']);
         }
 
-        // Produtos e resumo já definidos
-        $products = session()->get('products', []);
-        $summary = [
-            'items' => count($products),
-            'subtotal' => array_sum(array_column($products, 'total_price')),
-            'discount' => 0.00,
-            'total' => array_sum(array_column($products, 'total_price')),
-        ];
+        // Calcula o resumo da compra
+        $summary = $this->calculateSummary($products, $discountType === 'desconto' ? $discountAmount : 0, $discountType === 'acrescimo' ? $discountAmount : 0);
+        $totalPago = array_sum(array_column($payments, 'amount'));
 
-        // Pagamentos registrados na sessão
-        $payments = session()->get('payments', []); // Carrega pagamentos ou inicializa como array vazio
+        if ($totalPago < $summary['total']) {
+            return response()->json(['success' => false, 'message' => 'O total pago é insuficiente.']);
+        }
 
-        return view('sales.sales', compact('products', 'summary', 'payments'));
+        DB::beginTransaction();
+
+        try {
+            // Cria a compra
+            $compra = MovCompra::create([
+                'id_usuario' => Auth::id(),
+                'id_empresa' => Auth::user()->id_empresa,
+                'id_fornecedor' => $fornecedor_id,
+                'data_compra' => now(),
+                'vl_total' => $summary['subtotal'],
+                'vl_desconto' => $discountType === 'desconto' ? $discountAmount : 0,
+                'vl_liquido' => $summary['total'],
+                'status' => 'Finalizada',
+            ]);
+
+            // Adiciona os itens da compra
+            $sequencia = 1;
+            foreach ($products as $product) {
+                MovCompraIten::create([
+                    'id_mov_compra' => $compra->id,
+                    'sequencia' => $sequencia++,
+                    'quantidade' => $product['quantity'],
+                    'vl_unitario' => $product['unit_price'],
+                    'vl_total' => $product['total_price'],
+                    'vl_liquido' => $product['total_price'],
+                    'id_usuario' => Auth::id(),
+                    'id_empresa' => Auth::user()->id_empresa,
+                    'id_fornecedor' => $fornecedor_id,
+                ]);
+
+                // Atualiza o estoque do produto (incrementa)
+                $produto = Product::find($product['code']);
+                $produto->estoque += $product['quantity'];
+                $produto->save();
+            }
+
+            // Registre os pagamentos, se necessário
+
+            DB::commit();
+
+            // Limpa a sessão
+            session()->forget(['products', 'payments']);
+
+            return response()->json(['success' => true, 'message' => 'Compra finalizada com sucesso.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao finalizar compra: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Erro ao finalizar compra: ' . $e->getMessage()]);
+        }
     }
+
 
     public function updateProduct(Request $request, $index)
     {
@@ -96,7 +165,7 @@ class PedidoDeVendaController extends Controller
             session()->put('products', array_values($products));
         }
 
-        return redirect('/admin/pedido-de-venda')->with('success', 'Produto removido com sucesso!');
+        return redirect('/admin/pedido-de-compra')->with('success', 'Produto removido com sucesso!');
     }
 
     public function processPayment(Request $request)
@@ -117,7 +186,7 @@ class PedidoDeVendaController extends Controller
         if ($totalPaid + $amount > $totalOrder) {
             return response()->json([
                 'success' => false,
-                'message' => 'O valor total pago não pode exceder o valor total da venda.',
+                'message' => 'O valor total pago não pode exceder o valor total da compra.',
             ]);
         }
 

@@ -159,7 +159,7 @@
         const totalPago = parseFloat(totalPaidElement.textContent.replace("R$", "").replace(/\./g, "").replace(",", ".")) || 0;
 
         if ((totalPago + paymentAmount) > totalPedido) {
-            alert("O valor total pago não pode exceder o valor total da venda.");
+            alert("O valor total pago não pode exceder o valor total da compra.");
             return;
         }
 

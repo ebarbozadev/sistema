@@ -2,25 +2,25 @@
 
 @section('content')
 <div id="frenteDeCaixa" class="container">
-    <h1>Venda</h1>
+    <h1>Compra</h1>
 
     {{-- Formulário para Adicionar Produto --}}
-    @include('components._add_product_form')
+    @include('pdc._add_product_form')
 
     {{-- Tabela de Produtos --}}
-    @include('components._product_table', ['products' => $products])
+    @include('pdc._product_table', ['products' => $products])
 
     {{-- Resumo do Pagamento --}}
 
     {{-- Formulário de Pagamento --}}
 
-    @include('components.infoVenda')
+    @include('pdc.infoCompra')
 
-    @include('components._payment_section')
+    @include('pdc._payment_section')
 
-    @include('components._payment_summary', ['summary' => $summary])
+    @include('pdc._payment_summary', ['summary' => $summary])
     {{-- Ações no Rodapé --}}
-    @include('components._footer_actions')
+    @include('pdc._footer_actions')
 </div>
 @endsection
 
@@ -39,7 +39,7 @@
         const cliente_id = selectedClientInput.dataset.clientId;
 
         if (!cliente_id) {
-            alert('Por favor, selecione um cliente antes de finalizar a venda.');
+            alert('Por favor, selecione um cliente antes de finalizar a compra.');
             return;
         }
 
@@ -73,7 +73,7 @@
             _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         };
 
-        fetch('/admin/finalize-sale', {
+        fetch('/admin/c/finalize-sale', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -84,15 +84,15 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Venda finalizada com sucesso!');
-                    window.location.href = '/admin/pedido-de-venda';
+                    alert('Compra finalizada com sucesso!');
+                    window.location.href = '/admin/c/pedido-de-compra';
                 } else {
-                    alert('Erro ao finalizar venda: ' + result.message);
+                    alert('Erro ao finalizar compra: ' + result.message);
                 }
             })
             .catch(error => {
                 console.error('Erro:', error);
-                alert('Erro ao finalizar venda.');
+                alert('Erro ao finalizar compra.');
             });
     }
 </script>

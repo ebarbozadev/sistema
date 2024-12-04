@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Models\DataType;
 
@@ -21,15 +22,32 @@ class ClientController extends Controller
 
     public function searchClients(Request $request)
     {
-        $query = $request->get('query');
+        try {
+            // If authentication is required
+            if (!Auth::check()) {
+                return response()->json(['message' => 'Usuário não autenticado.'], 401);
+            }
 
-        $clients = Cliente::where('name', 'like', "%{$query}%")
-            ->orWhere('id', $query) // Permite buscar diretamente pelo ID exato
-            ->take(10)
-            ->get(['id', 'nome']); // Retorna apenas os campos necessários
+            $query = $request->input('query');
 
-        return response()->json($clients);
+            if (!$query) {
+                return response()->json([], 200);
+            }
+
+            // Fetch clients matching the query
+            $clients = Cliente::where('nome', 'LIKE', "%{$query}%")
+                ->orWhere('id', $query)
+                ->limit(10)
+                ->get(['id', 'nome']);
+
+            return response()->json($clients);
+        } catch (\Exception $e) {
+            Log::error("Erro ao buscar clientes: {$e->getMessage()}");
+
+            return response()->json(['message' => 'Erro interno no servidor.'], 500);
+        }
     }
+
 
     public function create()
     {
