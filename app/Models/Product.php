@@ -13,8 +13,9 @@ class Product extends BaseModel
 
     // Nome da tabela (se não seguir o padrão "products")
     protected $table = 'products';
-
-    // Campos que podem ser preenchidos em massa
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'id_empresa',
         'id_fornecedor',
@@ -30,8 +31,11 @@ class Product extends BaseModel
         'ativo',
         'id_categoria',
         'id_marca',
-        'id_linha'
+        'id_linha',
     ];
+
+    public $timestamps = true;
+
 
     // Campos que serão tratados como datas
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
@@ -62,6 +66,16 @@ class Product extends BaseModel
     public function categoria()
     {
         return $this->belongsTo(Categoria::class, 'id_categoria');
+    }
+
+    public function itensVenda()
+    {
+        return $this->hasMany(MovVendaIten::class, 'product_id', 'id');
+    }
+
+    public function movCompraItens()
+    {
+        return $this->hasMany(MovCompraIten::class, 'id_produto', 'id');
     }
 
     /**

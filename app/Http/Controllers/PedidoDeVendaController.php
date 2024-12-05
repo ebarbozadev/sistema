@@ -3,9 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caixa;
+use App\Models\MovCaixa;
+use App\Models\MovVenda;
+use App\Models\MovVendaIten;
 use App\Models\Product;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PedidoDeVendaController extends Controller
 {
@@ -17,11 +24,10 @@ class PedidoDeVendaController extends Controller
             ->first();
 
         if ($caixaAberto) {
-            $dataAbertura = $caixaAberto->data_abertura;
-            $hoje = now()->format('Y-m-d');
+            $dataAbertura = Carbon::parse($caixaAberto->data_abertura);
+            $hoje = now()->timezone('America/Sao_Paulo');
 
-            if ($dataAbertura != $hoje) {
-                // Redireciona para a tela de fechamento do caixa
+            if ($dataAbertura->toDateString() != $hoje->toDateString()) {
                 return redirect()->route('caixa.fecharAnterior');
             }
         } else {
@@ -143,15 +149,157 @@ class PedidoDeVendaController extends Controller
         ];
     }
 
+    public function finalizeSale(Request $request)
+    {
+        $products = session('products', []);
+        $payments = $request->input('payments', []);
+        $cliente_id = $request->input('cliente_id');
+        $discountAmount = $request->input('discountAmount', 0);
+        $discountType = $request->input('discountType', 'desconto');
+
+        if (empty($products)) {
+            return response()->json(['success' => false, 'message' => 'Adicione produtos à venda.']);
+        }
+
+        // Obter o caixa aberto
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
+
+        if (!$caixaAberto) {
+            return response()->json(['success' => false, 'message' => 'Nenhum caixa aberto encontrado.']);
+        }
+
+        // Verifica se há estoque suficiente para cada produto
+        foreach ($products as $code => $product) {
+            $produto = Product::find($code); // Use 'id' diretamente
+            if (!$produto) {
+                return response()->json(['success' => false, 'message' => "Produto com ID {$code} não encontrado."], 404);
+            }
+            if ($produto->estoque < $product['quantity']) {
+                return response()->json(['success' => false, 'message' => "Estoque insuficiente para o produto {$produto->nome}."], 400);
+            }
+        }
+
+        // Calcula o resumo da venda
+        $summary = $this->calculateSummary($products, $discountType === 'desconto' ? $discountAmount : 0, $discountType === 'acrescimo' ? $discountAmount : 0);
+        $totalPago = array_sum(array_column($payments, 'amount'));
+
+        if ($totalPago < $summary['total']) {
+            return response()->json(['success' => false, 'message' => 'O total pago é insuficiente.']);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Cria a venda
+            $venda = MovVenda::create([
+                'id_usuario' => Auth::id(),
+                'id_empresa' => Auth::user()->id_empresa,
+                'id_cliente' => $cliente_id,
+                'id_caixa' => $caixaAberto->id, // Associar a venda ao caixa
+                'data_venda' => now(),
+                'vl_total' => $summary['subtotal'],
+                'vl_desconto' => $discountType === 'desconto' ? $discountAmount : 0,
+                'vl_liquido' => $summary['total'],
+                'status' => 'Finalizada',
+            ]);
+
+            // Verificar se o ID da venda foi criado corretamente
+            if (!$venda->id) {
+                throw new Exception('Falha ao criar a venda.');
+            }
+
+            // Adiciona os itens da venda
+            $sequencia = 1;
+            foreach ($products as $product) {
+                $produto = Product::find($product['code']); // Use 'id' diretamente
+
+                if (!$produto) {
+                    throw new Exception("Produto com ID {$product['code']} não encontrado.");
+                }
+
+                MovVendaIten::create([
+                    'id_mov_venda' => $venda->id,
+                    'sequencia' => $sequencia++,
+                    'quantidade' => $product['quantity'],
+                    'vl_unitario' => $product['unit_price'],
+                    'vl_total' => $product['total_price'],
+                    'vl_liquido' => $product['total_price'], // Ajuste conforme a lógica de descontos
+                    'product_id' => $produto->id,
+                    'id_usuario' => Auth::id(),
+                    'id_empresa' => Auth::user()->id_empresa,
+                    'id_cliente' => $cliente_id,
+                ]);
+
+                // Atualiza o estoque do produto
+                $produto->estoque -= $product['quantity'];
+                $produto->save();
+            }
+
+            // Cria a movimentação do caixa associando a venda
+            $movCaixa = MovCaixa::create([
+                'id_caixa' => $caixaAberto->id,
+                'id_empresa' => Auth::user()->id_empresa,
+                'id_usuario' => Auth::id(),
+                'id_movimento' => $venda->id,
+                'tipo_movimentacao' => 'Venda',
+                'descricao' => 'Venda realizada',
+                'valor' => $summary['total'],
+                'data_movimentacao' => now(),
+            ]);
+
+            // Atualiza o saldo atual do caixa
+            $caixaAberto->saldo_atual += $summary['total'];
+            $caixaAberto->save();
+
+            // (Opcional) Processa os pagamentos
+            foreach ($payments as $payment) {
+                // Implemente a lógica de processamento de pagamentos conforme necessário
+            }
+
+            DB::commit();
+
+            // Limpa a sessão
+            session()->forget(['products', 'payments']);
+
+            return response()->json(['success' => true, 'message' => 'Venda finalizada com sucesso.']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao finalizar venda: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Erro ao finalizar venda: ' . $e->getMessage()]);
+        }
+    }
+
+
+
+    private function calculateSummary($products, $desconto, $acrescimo)
+    {
+        $items = count($products);
+        $subtotal = 0;
+
+        foreach ($products as $product) {
+            $subtotal += $product['total_price'];
+        }
+
+        $total = $subtotal - $desconto + $acrescimo;
+
+        return [
+            'items' => $items,
+            'subtotal' => $subtotal,
+            'total' => $total,
+        ];
+    }
+
     public function addProduct(Request $request)
     {
         $request->validate([
-            'code' => 'required|string',
+            'id' => 'required|exists:products,id', // Use 'id' em vez de 'code'
             'quantity' => 'required|numeric|min:1',
             'unit_price' => 'required|numeric|min:0.01',
         ]);
 
-        $productData = Product::find($request->code);
+        $productData = Product::find($request->id); // Use 'id'
 
         if (!$productData) {
             return response()->json(['success' => false, 'message' => 'Produto não encontrado.'], 404);
@@ -168,7 +316,7 @@ class PedidoDeVendaController extends Controller
         } else {
             // Adiciona um novo produto
             $products[] = [
-                'code' => $productData->id,
+                'code' => $productData->id, // 'code' representa 'id' aqui
                 'nome' => $productData->nome,
                 'quantity' => $request->quantity,
                 'unit_price' => $request->unit_price,

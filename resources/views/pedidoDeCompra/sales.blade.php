@@ -73,7 +73,7 @@
             _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         };
 
-        fetch('/admin/c/finalize-sale', {
+        fetch('/admin/pdc/finalize-sale', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +85,7 @@
             .then(result => {
                 if (result.success) {
                     alert('Compra finalizada com sucesso!');
-                    window.location.href = '/admin/c/pedido-de-compra';
+                    window.location.href = '/admin/pdc/pedido-de-compra';
                 } else {
                     alert('Erro ao finalizar compra: ' + result.message);
                 }

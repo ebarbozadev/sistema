@@ -16,9 +16,9 @@
 <table class="table">
     <thead>
         <tr>
-            <th style="width: 40px;">Ref.</th>
+            <th>Ref.</th>
             <th>Nome</th>
-            <th style="width: 80px;">Qtd.</th>
+            <th>Qtd.</th>
             <th>Vl. Unit.</th>
             <th>Total</th>
             <th>Ações</th>
@@ -42,7 +42,7 @@
             <td>{{ isset($product['unit_price']) ? number_format($product['unit_price'], 2, ',', '.') : 'N/A' }}</td>
             <td>{{ isset($product['total_price']) ? number_format($product['total_price'], 2, ',', '.') : 'N/A' }}</td>
             <td style="text-align: center;">
-                <form action="{{ route('remove_product', $index) }}" method="POST" style="display:inline;">
+                <form action="{{ route('pdc.remove_product', $index) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-sm btn-danger">Remover</button>
@@ -52,6 +52,7 @@
         @endforeach
     </tbody>
 </table>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -79,7 +80,7 @@
                     const quantity = this.value;
 
                     if (quantity && quantity > 0) {
-                        fetch(`/admin/c/update-product/${index}`, {
+                        fetch(`/admin/update-product/${index}`, {
                                 method: 'PATCH',
                                 headers: {
                                     'Content-Type': 'application/json',

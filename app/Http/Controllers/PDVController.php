@@ -80,6 +80,11 @@ class PDVController extends Controller
         ];
     }
 
+    public function cancelSale(Request $request)
+    {
+        return view('sales.sales');
+    }
+
     public function finalizeSale(Request $request)
     {
         $products = session('products', []);
@@ -90,6 +95,26 @@ class PDVController extends Controller
 
         if (empty($products)) {
             return response()->json(['success' => false, 'message' => 'Adicione produtos à venda.']);
+        }
+
+        // Obter o caixa aberto
+        $caixaAberto = Caixa::where('id_empresa', Auth::user()->id_empresa)
+            ->where('status', 'Aberto')
+            ->first();
+
+        if (!$caixaAberto) {
+            return response()->json(['success' => false, 'message' => 'Nenhum caixa aberto encontrado.']);
+        }
+
+        // Verifica se há estoque suficiente para cada produto
+        foreach ($products as $code => $product) {
+            $produto = Product::find($code); // Use 'id' diretamente
+            if (!$produto) {
+                return response()->json(['success' => false, 'message' => "Produto com ID {$code} não encontrado."], 404);
+            }
+            if ($produto->estoque < $product['quantity']) {
+                return response()->json(['success' => false, 'message' => "Estoque insuficiente para o produto {$produto->nome}."], 400);
+            }
         }
 
         // Calcula o resumo da venda
@@ -108,72 +133,66 @@ class PDVController extends Controller
                 'id_usuario' => Auth::id(),
                 'id_empresa' => Auth::user()->id_empresa,
                 'id_cliente' => $cliente_id,
-                'DATA_VENDA' => now(),
-                'VL_TOTAL' => $summary['subtotal'],
-                'VL_DESCONTO' => $discountType === 'desconto' ? $discountAmount : 0,
-                'VL_LIQUIDO' => $summary['total'],
-                'STATUS' => 'Finalizada',
+                'id_caixa' => $caixaAberto->id, // Associar a venda ao caixa
+                'data_venda' => now(),
+                'vl_total' => $summary['subtotal'],
+                'vl_desconto' => $discountType === 'desconto' ? $discountAmount : 0,
+                'vl_liquido' => $summary['total'],
+                'status' => 'Finalizada',
             ]);
+
+            // Verificar se o ID da venda foi criado corretamente
+            if (!$venda->id) {
+                throw new Exception('Falha ao criar a venda.');
+            }
 
             // Adiciona os itens da venda
             $sequencia = 1;
             foreach ($products as $product) {
+                $produto = Product::find($product['code']); // Use 'id' diretamente
+
+                if (!$produto) {
+                    throw new Exception("Produto com ID {$product['code']} não encontrado.");
+                }
+
                 MovVendaIten::create([
-                    'ID_MOV_VENDA' => $venda->ID, // Alterado de $venda->id para $venda->ID
-                    'SEQUENCIA' => $sequencia++,
-                    'QUANTIDADE' => $product['quantity'],
-                    'VL_UNITARIO' => $product['unit_price'],
-                    'VL_TOTAL' => $product['total_price'],
-                    'VL_LIQUIDO' => $product['total_price'],
+                    'id_mov_venda' => $venda->id,
+                    'sequencia' => $sequencia++,
+                    'quantidade' => $product['quantity'],
+                    'vl_unitario' => $product['unit_price'],
+                    'vl_total' => $product['total_price'],
+                    'vl_liquido' => $product['total_price'], // Ajuste conforme a lógica de descontos
+                    'product_id' => $produto->id,
                     'id_usuario' => Auth::id(),
                     'id_empresa' => Auth::user()->id_empresa,
-                    'id_cliente' => $cliente_id, // Adicione esta linha
+                    'id_cliente' => $cliente_id,
                 ]);
 
                 // Atualiza o estoque do produto
-                $produto = Product::find($product['code']);
                 $produto->estoque -= $product['quantity'];
                 $produto->save();
             }
 
-            // Registra as movimentações de caixa
-            $caixa = Caixa::where('ID_EMPRESA', Auth::user()->id_empresa)
-                ->where('STATUS', 'Aberto')
-                ->first();
-
-            if (!$caixa) {
-                throw new Exception('Caixa não está aberto.');
-            }
-
-            foreach ($payments as $payment) {
-                MovCaixa::create([
-                    'ID_CAIXA' => $caixa->id, // Alterado de $caixa->ID para $caixa->id
-                    'ID_EMPRESA' => Auth::user()->id_empresa,
-                    'ID_USUARIO' => Auth::id(),
-                    'ID_MOVIMENTO' => $venda->ID,
-                    'TIPO_MOVIMENTACAO' => 'Venda',
-                    'DESCRICAO' => 'Venda ID ' . $venda->ID,
-                    'VALOR' => $payment['amount'],
-                    'DATA_MOVIMENTACAO' => now(),
-                ]);
-
-                // Atualiza o saldo do caixa
-                $caixa->SALDO_ATUAL += $payment['amount'];
-            }
-
-            $caixa->save();
-
-            // Cria o registro em contas a receber
-            ContaReceber::create([
+            // Cria a movimentação do caixa associando a venda
+            $movCaixa = MovCaixa::create([
+                'id_caixa' => $caixaAberto->id,
                 'id_empresa' => Auth::user()->id_empresa,
                 'id_usuario' => Auth::id(),
-                'id_cliente' => $cliente_id,
-                'valor' => $summary['total'] - $totalPago, // Valor restante a receber
-                'data_vencimento' => now(), // Ou especifique uma data futura
-                'parcela' => '1/1', // Ajuste conforme necessário
-                'status' => ($summary['total'] - $totalPago) > 0 ? 'Pendente' : 'Pago',
-                'descricao' => 'Venda ID ' . $venda->id,
+                'id_movimento' => $venda->id,
+                'tipo_movimentacao' => 'Venda',
+                'descricao' => 'Venda realizada',
+                'valor' => $summary['total'],
+                'data_movimentacao' => now(),
             ]);
+
+            // Atualiza o saldo atual do caixa
+            $caixaAberto->saldo_atual += $summary['total'];
+            $caixaAberto->save();
+
+            // (Opcional) Processa os pagamentos
+            foreach ($payments as $payment) {
+                // Implemente a lógica de processamento de pagamentos conforme necessário
+            }
 
             DB::commit();
 
@@ -187,6 +206,4 @@ class PDVController extends Controller
             return response()->json(['success' => false, 'message' => 'Erro ao finalizar venda: ' . $e->getMessage()]);
         }
     }
-
-    // Outros métodos...
 }

@@ -2,32 +2,40 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MovCaixa extends Model
 {
+    use HasFactory;
+
     protected $table = 'mov_caixas';
-
-    protected $primaryKey = 'ID';
-
+    protected $primaryKey = 'id';
     public $incrementing = true;
-
     protected $keyType = 'int';
+    public $timestamps = true;
 
-    public $timestamps = false;
-
+    // Defina os campos que podem ser preenchidos via mass assignment
     protected $fillable = [
-        'ID_CAIXA',
-        'ID_EMPRESA',
-        'ID_USUARIO',
-        'ID_MOVIMENTO', // Certifique-se de que este campo está incluído
-        'TIPO_MOVIMENTACAO',
-        'DESCRICAO',
-        'VALOR',
-        'DATA_MOVIMENTACAO',
+        'id_caixa',
+        'id_empresa',
+        'id_usuario',
+        'id_movimento',
+        'tipo_movimentacao',
+        'descricao',
+        'valor',
+        'data_movimentacao',
     ];
 
-    protected $dates = [
-        'DATA_MOVIMENTACAO',
-    ];
+    // Relacionamento com Caixa
+    public function caixa()
+    {
+        return $this->belongsTo(Caixa::class, 'id_caixa', 'id');
+    }
+
+    // Relacionamento com MovVenda (ou outro modelo relacionado a 'id_movimento')
+    public function movimento()
+    {
+        return $this->belongsTo(MovVenda::class, 'id_movimento', 'id');
+    }
 }

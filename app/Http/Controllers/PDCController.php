@@ -59,7 +59,7 @@ class PDCController extends Controller
 
             return response()->json(['success' => true, 'product' => $products[$code], 'summary' => $summary]);
         } catch (\Exception $e) {
-            Log::error("Erro ao adicionar produto: {$e->getMessage()}");
+            Log::error(message: "Erro ao adicionar produto: {$e->getMessage()}");
             return response()->json(['success' => false, 'message' => 'Erro interno no servidor.'], 500);
         }
     }

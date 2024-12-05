@@ -204,7 +204,7 @@ $dataType->getTranslatedAttribute('display_name_singular'))
                         <div class="form-group">
                             <label for="documento">Documento</label>
                             <input required type="text" class="form-control" id="documento" name="documento"
-                                placeholder="Documentoo" value="{{ old('documento', $dataTypeContent->documento ?? '') }}">
+                                placeholder="Documento" value="{{ old('documento', $dataTypeContent->documento ?? '') }}">
                         </div>
 
                         <div class="form-group">

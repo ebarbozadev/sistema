@@ -25,9 +25,9 @@ class Caixa extends Model
         'saldo_inicial',
         'saldo_atual',
         'saldo_fechamento',
+        'status',
         'data_abertura',
         'data_fechamento',
-        'status',
     ];
 
     protected $dates = [
@@ -48,8 +48,13 @@ class Caixa extends Model
         return $this->belongsTo(Empresa::class, 'id_empresa');
     }
 
+    public function vendas()
+    {
+        return $this->hasMany(MovVenda::class, 'id_caixa', 'id');
+    }
+
     public function movimentacoes()
     {
-        return $this->hasMany(MovCaixa::class, 'id_caixa');
+        return $this->hasMany(MovCaixa::class, 'id_caixa', 'id');
     }
 }

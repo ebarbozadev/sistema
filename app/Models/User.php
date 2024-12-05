@@ -23,7 +23,6 @@ class User extends \TCG\Voyager\Models\User implements VoyagerUserContract // Im
         'name',
         'email',
         'password',
-        'teste',
         'role_id',
     ];
 
@@ -49,6 +48,6 @@ class User extends \TCG\Voyager\Models\User implements VoyagerUserContract // Im
 
     public function empresa()
     {
-        return $this->belongsTo(Empresa::class, 'id_empresa');
+        return $this->belongsTo(Empresa::class, 'id_empresa', 'id');
     }
 }

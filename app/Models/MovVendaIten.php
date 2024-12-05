@@ -6,26 +6,32 @@ use Illuminate\Database\Eloquent\Model;
 
 class MovVendaIten extends Model
 {
-    protected $table = 'mov_venda_itens'; // Certifique-se de que este é o nome correto da tabela
-
-    protected $fillable = [
-        'ID_MOV_VENDA',
-        'SEQUENCIA',
-        'QUANTIDADE',
-        'VL_UNITARIO',
-        'VL_TOTAL',
-        'VL_LIQUIDO',
-        'id_usuario',
-        'id_empresa',
-        'id_cliente', // Adicione este campo
-    ];
-
+    protected $table = 'mov_venda_itens';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = false;
 
-    // Se a chave primária não for 'id', especifique-a
-    protected $primaryKey = 'ID'; // Substitua por 'ID' ou o nome correto da chave primária
+    protected $fillable = [
+        'id_mov_venda',
+        'sequencia',
+        'quantidade',
+        'vl_unitario',
+        'vl_total',
+        'vl_liquido',
+        'product_id',
+        'id_usuario',
+        'id_empresa',
+        'id_cliente',
+    ];
 
-    public $incrementing = true;
+    public function venda()
+    {
+        return $this->belongsTo(MovVenda::class, 'id_mov_venda', 'id');
+    }
 
-    protected $keyType = 'int';
+    public function produto()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
 }

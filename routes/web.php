@@ -25,7 +25,6 @@ Route::post('/products/media/remove', [VoyagerMediaController::class, 'remove'])
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 
-    Route::get('/teste', [MainController::class, 'teste']);
     Route::get('/search-product-by-code/{code}', [ProductController::class, 'searchProductByCode']);
     Route::post('voyager/products/media/remove', [VoyagerMediaController::class, 'remove'])->name('voyager.products.media.remove');
     // Route::get('/search-products', [ProductController::class, 'searchProducts'])->name('admin.search-products');
@@ -41,20 +40,21 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('/add-product', [PDVController::class, 'addProduct'])->name('add_product');
     Route::post('/finalize-sale', [PDVController::class, 'finalizeSale'])->name('finalize_sale');
+    Route::post('/cancelSale', [PDVController::class, 'cancelSale'])->name('cancelSale');
 
 
-    Route::group(['prefix' => '/c'], function () {
+
+    Route::group(['prefix' => '/pdc'], function () {
         Route::get('/pedido-de-compra', [PedidoDeCompraController::class, 'index'])->name('pdc.index');
         Route::post('/add-product', [PedidoDeCompraController::class, 'addProduct'])->name('pdc.add_product');
         Route::patch('/update-product/{index}', [PedidoDeCompraController::class, 'updateProduct'])->name('pdc.update_product');
         Route::delete('/remove-product/{index}', [PedidoDeCompraController::class, 'removeProduct'])->name('pdc.remove_product');
         Route::post('/finalize-purchase', [PedidoDeCompraController::class, 'finalizePurchase'])->name('pdc.finalize_purchase');
 
-        // Rotas para buscar fornecedores
         Route::get('/search-suppliers', [FornecedoreController::class, 'searchSuppliers'])->name('pdc.search_suppliers');
+
+        Route::get('/search-products', [ProductController::class, 'searchProducts'])->name('admin.search-products');
     });
-
-
 
     Route::group(['prefix' => '/pagar-contas'], function () {
         Route::get('/', [ContasPagarController::class, 'index'])->name('voyager.pagar-contas.index');
@@ -72,7 +72,9 @@ Route::group(['prefix' => 'admin'], function () {
     Route::put('/receber-contas/{id}', [ContasReceberController::class, 'update'])->name('voyager.receber-contas.update');
 
     Route::get('/caixa', [CaixaController::class, 'index'])->name('caixa.index');
+    Route::get('/caixa/abrir', [CaixaController::class, 'mostrarFormularioAbertura'])->name('caixa.abrir.form');
     Route::post('/caixa/abrir', [CaixaController::class, 'abrirCaixa'])->name('caixa.abrir');
+    Route::get('/caixa/fechar/{id}', [CaixaController::class, 'mostrarFechamento'])->name('caixa.mostrarFechamento');
     Route::post('/caixa/fechar/{id}', [CaixaController::class, 'fecharCaixa'])->name('caixa.fechar');
     Route::get('/caixa/detalhes/{id}', [CaixaController::class, 'detalhesCaixa'])->name('caixa.detalhes');
 

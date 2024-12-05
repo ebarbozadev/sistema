@@ -1,118 +1,114 @@
-<div class="form-group">
-    <div class="form-group" style="position: relative;">
-        <label for="supplier-search">Pesquisar Fornecedor</label>
-        <input
-            type="text"
-            id="supplier-search"
-            name="supplier_search"
-            class="form-control"
-            placeholder="Digite o nome ou ID do fornecedor"
-            autocomplete="off" />
-        <div id="supplier-suggestions"></div>
-    </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-    <div class="form-group">
-        <label for="selected-supplier">Fornecedor Selecionado</label>
-        <input
-            type="text"
-            id="selected-supplier"
-            name="selected_supplier"
-            class="form-control"
-            readonly
-            data-supplier-id="" />
-    </div>
-
-    <div class="form-group">
-        <label for="vendedor">Vendedor</label>
-        <input
-            type="text"
-            id="vendedor"
-            name="vendedor"
-            class="form-control"
-            value="{{ Auth::user()->name }}"
-            readonly />
-    </div>
-</div>
-
-<style>
-    #client-suggestions {
-        position: absolute;
-        z-index: 1000;
-        width: 100%;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        display: none;
-    }
-
-    #client-suggestions a {
-        display: block;
-        padding: 8px;
-        text-decoration: none;
-        color: #333;
-        cursor: pointer;
-    }
-
-    #client-suggestions a:hover {
-        background-color: #f8f9fa;
-    }
-</style>
-
-<script>
-    (() => {
-        const supplierSearchInput = document.getElementById("supplier-search");
-        const selectedSupplierInput = document.getElementById("selected-supplier");
-        const suggestionsBox = document.getElementById("supplier-suggestions");
-
-        function selectSupplier(supplier) {
-            selectedSupplierInput.value = `${supplier.nome} (ID: ${supplier.id})`;
-            selectedSupplierInput.dataset.supplierId = supplier.id;
-            supplierSearchInput.value = "";
-            suggestionsBox.style.display = "none";
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Pedido de Compra</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        .suggestions-box {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
         }
 
-        supplierSearchInput.addEventListener("input", function() {
-            const query = this.value;
+        .suggestion-item {
+            display: block;
+            padding: 8px;
+            text-decoration: none;
+            color: #333;
+            cursor: pointer;
+        }
 
-            if (query.length > 0) {
-                fetch(`/admin/c/search-suppliers?query=${query}`)
-                    .then((response) => response.json())
-                    .then((suppliers) => {
-                        suggestionsBox.innerHTML = "";
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
 
-                        if (suppliers.length > 0) {
-                            suggestionsBox.style.display = "block";
+<body>
+    <form id="pedido-compra-form" action="{{ route('pdc.finalize_purchase') }}" method="POST">
+        @csrf
+        <!-- Outros campos -->
 
-                            suppliers.forEach((supplier) => {
-                                const suggestionItem = document.createElement("a");
-                                suggestionItem.textContent = `${supplier.nome} (ID: ${supplier.id})`;
-                                suggestionItem.dataset.id = supplier.id;
-                                suggestionItem.classList.add("dropdown-item");
+        <div class="form-group" style="position: relative">
+            <label for="fornecedor-descricao">Fornecedor</label>
+            <input type="text" id="fornecedor-descricao" name="fornecedor_descricao" class="form-control" autocomplete="off">
+            <div id="fornecedor-suggestions" class="suggestions-box"></div>
+            <input type="hidden" id="id_fornecedor" name="id_fornecedor">
+        </div>
 
-                                suggestionItem.addEventListener("click", function(e) {
-                                    e.preventDefault();
-                                    selectSupplier(supplier);
+        <!-- Outros campos e botões -->
+        <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fornecedorInput = document.getElementById('fornecedor-descricao');
+            const fornecedorSuggestions = document.getElementById('fornecedor-suggestions');
+            const idFornecedorInput = document.getElementById('id_fornecedor');
+
+            fornecedorInput.addEventListener('input', function() {
+                const query = this.value;
+
+                if (query.length >= 2) {
+                    fetch(`/admin/pdc/search-suppliers?query=${encodeURIComponent(query)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Erro na resposta da rede');
+                            }
+                            return response.json();
+                        })
+                        .then(suppliers => {
+                            fornecedorSuggestions.innerHTML = '';
+
+                            if (suppliers.length > 0) {
+                                fornecedorSuggestions.style.display = 'block';
+
+                                suppliers.forEach(supplier => {
+                                    const suggestionItem = document.createElement('a');
+                                    suggestionItem.textContent = supplier.nome;
+                                    suggestionItem.dataset.id = supplier.id;
+                                    suggestionItem.classList.add('suggestion-item');
+
+                                    suggestionItem.addEventListener('click', function(e) {
+                                        e.preventDefault();
+
+                                        fornecedorInput.value = supplier.nome;
+                                        idFornecedorInput.value = supplier.id;
+                                        fornecedorSuggestions.style.display = 'none';
+                                    });
+
+                                    fornecedorSuggestions.appendChild(suggestionItem);
                                 });
+                            } else {
+                                fornecedorSuggestions.style.display = 'none';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao buscar fornecedores:', error);
+                            fornecedorSuggestions.style.display = 'none';
+                        });
+                } else {
+                    fornecedorSuggestions.style.display = 'none';
+                }
+            });
 
-                                suggestionsBox.appendChild(suggestionItem);
-                            });
-                        } else {
-                            suggestionsBox.style.display = "none";
-                        }
-                    })
-                    .catch((error) => console.error("Erro ao buscar fornecedores:", error));
-            } else {
-                suggestionsBox.style.display = "none";
-            }
+            // Esconder sugestões ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!fornecedorInput.contains(e.target) && !fornecedorSuggestions.contains(e.target)) {
+                    fornecedorSuggestions.style.display = 'none';
+                }
+            });
         });
+    </script>
+</body>
 
-        // Esconde as sugestões se clicar fora do campo
-        document.addEventListener("click", function(e) {
-            if (!supplierSearchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-                suggestionsBox.style.display = "none";
-            }
-        });
-    })();
-</script>
+</html>

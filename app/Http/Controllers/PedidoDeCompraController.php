@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Caixa;
 use App\Models\MovCompra;
-use App\Models\MovCompraIten;
+use App\Models\MovCompraItem;
 use App\Models\Product;
+use App\Models\Fornecedor;
+use App\Models\MovCompraIten;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +15,9 @@ use Illuminate\Support\Facades\Log;
 
 class PedidoDeCompraController extends Controller
 {
+    /**
+     * Exibe a página principal de Pedido de Compra.
+     */
     public function index()
     {
         // Limpa os produtos e pagamentos da sessão
@@ -25,6 +30,14 @@ class PedidoDeCompraController extends Controller
         return view('pedidoDeCompra.sales', compact('products', 'summary'));
     }
 
+    /**
+     * Calcula o resumo da compra.
+     *
+     * @param array $products
+     * @param float $discount
+     * @param float $surcharge
+     * @return array
+     */
     private function calculateSummary(array $products, $discount = 0, $surcharge = 0)
     {
         $subtotal = array_sum(array_column($products, 'total_price'));
@@ -41,6 +54,12 @@ class PedidoDeCompraController extends Controller
         ];
     }
 
+    /**
+     * Finaliza a compra.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function finalizePurchase(Request $request)
     {
         $products = session('products', []);
@@ -54,7 +73,11 @@ class PedidoDeCompraController extends Controller
         }
 
         // Calcula o resumo da compra
-        $summary = $this->calculateSummary($products, $discountType === 'desconto' ? $discountAmount : 0, $discountType === 'acrescimo' ? $discountAmount : 0);
+        $summary = $this->calculateSummary(
+            $products,
+            $discountType === 'desconto' ? $discountAmount : 0,
+            $discountType === 'acrescimo' ? $discountAmount : 0
+        );
         $totalPago = array_sum(array_column($payments, 'amount'));
 
         if ($totalPago < $summary['total']) {
@@ -77,11 +100,10 @@ class PedidoDeCompraController extends Controller
             ]);
 
             // Adiciona os itens da compra
-            $sequencia = 1;
-            foreach ($products as $product) {
+            foreach ($products as $index => $product) {
                 MovCompraIten::create([
                     'id_mov_compra' => $compra->id,
-                    'sequencia' => $sequencia++,
+                    'sequencia' => $index + 1,
                     'quantidade' => $product['quantity'],
                     'vl_unitario' => $product['unit_price'],
                     'vl_total' => $product['total_price'],
@@ -89,15 +111,21 @@ class PedidoDeCompraController extends Controller
                     'id_usuario' => Auth::id(),
                     'id_empresa' => Auth::user()->id_empresa,
                     'id_fornecedor' => $fornecedor_id,
+                    'id_produto' => $product['code'], // Certifique-se de que 'code' é o 'id_produto'
                 ]);
 
                 // Atualiza o estoque do produto (incrementa)
                 $produto = Product::find($product['code']);
-                $produto->estoque += $product['quantity'];
-                $produto->save();
+                if ($produto) {
+                    $produto->estoque += $product['quantity'];
+                    $produto->save();
+                } else {
+                    throw new \Exception("Produto com código {$product['code']} não encontrado.");
+                }
             }
 
-            // Registre os pagamentos, se necessário
+            // Registrar os pagamentos, se necessário
+            // Dependendo de como os pagamentos estão sendo gerenciados, pode ser necessário criar registros na tabela de pagamentos
 
             DB::commit();
 
@@ -112,7 +140,13 @@ class PedidoDeCompraController extends Controller
         }
     }
 
-
+    /**
+     * Atualiza a quantidade de um produto.
+     *
+     * @param Request $request
+     * @param int $index
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateProduct(Request $request, $index)
     {
         $request->validate([
@@ -128,16 +162,8 @@ class PedidoDeCompraController extends Controller
 
             session()->put('products', $products);
 
-            $summary = [
-                'items' => count($products),
-                'subtotal' => array_sum(array_column($products, 'total_price')),
-                'discount' => 0.00,
-                'total' => array_sum(array_column($products, 'total_price')),
-            ];
-
-            // Calcula o total pago até o momento
+            $summary = $this->calculateSummary($products);
             $totalPaid = array_sum(array_column($payments, 'amount'));
-            // Calcula o restante
             $remaining = $summary['total'] - $totalPaid;
 
             return response()->json([
@@ -151,6 +177,12 @@ class PedidoDeCompraController extends Controller
         return response()->json(['success' => false, 'message' => 'Produto não encontrado.'], 404);
     }
 
+    /**
+     * Remove um produto da compra.
+     *
+     * @param int $index
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function removeProduct($index)
     {
         // Obter os produtos da sessão
@@ -165,9 +197,15 @@ class PedidoDeCompraController extends Controller
             session()->put('products', array_values($products));
         }
 
-        return redirect('/admin/pedido-de-compra')->with('success', 'Produto removido com sucesso!');
+        return redirect('/admin/pdc/pedido-de-compra')->with('success', 'Produto removido com sucesso!');
     }
 
+    /**
+     * Processa um pagamento.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function processPayment(Request $request)
     {
         $request->validate([
@@ -177,8 +215,7 @@ class PedidoDeCompraController extends Controller
 
         $amount = $request->input('amount');
         $payments = session()->get('payments', []);
-        $summary = session()->get('summary', []);
-
+        $summary = $this->calculateSummary(session('products', []));
         $totalOrder = $summary['total'] ?? 0;
         $totalPaid = array_sum(array_column($payments, 'amount'));
 
@@ -201,21 +238,16 @@ class PedidoDeCompraController extends Controller
         return response()->json(['success' => true, 'summary' => $summary]);
     }
 
-    private function updateSummary()
-    {
-        // Lógica para calcular e atualizar o resumo de pagamentos
-        // Exemplo fictício
-        return [
-            'items' => 5, // Número de itens no pedido
-            'subtotal' => 500.00, // Subtotal calculado
-            'total' => 480.00, // Total considerando descontos ou acréscimos
-        ];
-    }
-
+    /**
+     * Adiciona um produto à compra.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addProduct(Request $request)
     {
         $request->validate([
-            'code' => 'required|string',
+            'code' => 'required|exists:products,id', // Verifica se o produto existe
             'quantity' => 'required|numeric|min:1',
             'unit_price' => 'required|numeric|min:0.01',
         ]);
@@ -247,17 +279,27 @@ class PedidoDeCompraController extends Controller
 
         session()->put('products', $products);
 
-        $summary = [
-            'items' => count($products),
-            'subtotal' => array_sum(array_column($products, 'total_price')),
-            'discount' => 0.00,
-            'total' => array_sum(array_column($products, 'total_price')),
-        ];
+        $summary = $this->calculateSummary($products);
 
         return response()->json([
             'success' => true,
             'product' => $products[$existingProductIndex ?? array_key_last($products)],
             'summary' => $summary,
         ]);
+    }
+
+    /**
+     * Atualiza o resumo após alterações na compra.
+     *
+     * @return array
+     */
+    private function updateSummary()
+    {
+        // Implementação personalizada, conforme a lógica do seu sistema
+        return [
+            'items' => 5, // Número de itens no pedido
+            'subtotal' => 500.00, // Subtotal calculado
+            'total' => 480.00, // Total considerando descontos ou acréscimos
+        ];
     }
 }

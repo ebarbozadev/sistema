@@ -6,27 +6,35 @@ use Illuminate\Database\Eloquent\Model;
 
 class MovVenda extends Model
 {
-    protected $table = 'mov_vendas'; // Certifique-se de que este é o nome correto da tabela
-
-    // Se a chave primária não for 'id', especifique-a
-    protected $primaryKey = 'ID'; // Substitua por 'ID' ou o nome correto da chave primária
-
-    public $incrementing = true; // Confirma que a chave primária é auto-incremento
-
-    protected $keyType = 'int'; // Especifica o tipo da chave primária
-
+    protected $table = 'mov_vendas';
+    protected $primaryKey = 'id'; // Certifique-se de que a chave primária é 'id'
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'id_usuario',
         'id_empresa',
         'id_cliente',
-        'DATA_VENDA',
-        'VL_TOTAL',
-        'VL_DESCONTO',
-        'VL_LIQUIDO',
-        'STATUS',
+        'data_venda',
+        'id_caixa', // Adicionado para mass assignment
+        'vl_total',
+        'vl_desconto',
+        'vl_liquido',
+        'status',
     ];
 
+    // Relacionamento com os itens da venda
+    public function itens()
+    {
+        return $this->hasMany(MovVendaIten::class, 'id_mov_venda', 'id');
+    }
 
-    public $timestamps = false; // Se a tabela não possui os campos created_at e updated_at
+    public function caixa()
+    {
+        return $this->belongsTo(Caixa::class, 'id_caixa', 'id');
+    }
 
+    public function movimentacoesCaixa()
+    {
+        return $this->hasMany(MovCaixa::class, 'id_movimento', 'id');
+    }
 }
